@@ -54,7 +54,15 @@ public class RegisterView extends VerticalLayout {
             );
             sessionService.login(user);
             Notification.show("Register successful " + user.getUsername());
-            getUI().ifPresent(ui -> ui.navigate(HomeView.class));
+
+            if(user.getUserRole() ==  UserRole.PARENT){
+                getUI().ifPresent(ui -> ui.navigate("parent"));
+            } else if (user.getUserRole() == UserRole.CHILD) {
+                getUI().ifPresent(ui -> ui.navigate("child"));
+            }else {
+                Notification.show("Unbekannte Rolle!");
+            }
+//            getUI().ifPresent(ui -> ui.navigate(HomeView.class));
 
         } catch (Exception ex) {
             Notification.show("Fehler: " + ex.getMessage(), 5000, Notification.Position.MIDDLE);

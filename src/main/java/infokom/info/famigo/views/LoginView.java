@@ -9,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.User;
+import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.AuthService;
 import infokom.info.famigo.service.SessionService;
 
@@ -24,8 +25,17 @@ public class LoginView extends VerticalLayout {
             try {
                 User user = authService.login(username.getValue(), password.getValue());
                 sessionService.login(user);
+
+                if(user.getUserRole() == UserRole.PARENT) {
+                    getUI().ifPresent(ui -> ui.navigate("parent"));
+                } else if (user.getUserRole() == UserRole.CHILD) {
+                    getUI().ifPresent(ui -> ui.navigate("child"));
+                }else{
+                    Notification.show("Unbekannte Rolle!");
+                }
+
                 Notification.show("Login successful " + user.getUsername());
-                getUI().ifPresent(ui -> ui.navigate(HomeView.class));
+//                getUI().ifPresent(ui -> ui.navigate(HomeView.class));
 
             } catch (Exception ex) {
                 Notification.show("Fehler: " + ex.getMessage());
