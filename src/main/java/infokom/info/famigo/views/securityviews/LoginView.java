@@ -1,4 +1,4 @@
-package infokom.info.famigo.views;
+package infokom.info.famigo.views.securityviews;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
@@ -13,7 +13,7 @@ import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.AuthService;
 import infokom.info.famigo.service.SessionService;
 
-@Route("login")
+@Route("")
 @PageTitle("Login")
 public class LoginView extends VerticalLayout {
 
@@ -26,9 +26,9 @@ public class LoginView extends VerticalLayout {
                 User user = authService.login(username.getValue(), password.getValue());
                 sessionService.login(user);
 
-                if(user.getUserRole() == UserRole.PARENT) {
+                if(user.getRole() == UserRole.PARENT) {
                     getUI().ifPresent(ui -> ui.navigate("parent"));
-                } else if (user.getUserRole() == UserRole.CHILD) {
+                } else if (user.getRole() == UserRole.CHILD) {
                     getUI().ifPresent(ui -> ui.navigate("child"));
                 }else{
                     Notification.show("Unbekannte Rolle!");

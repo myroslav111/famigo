@@ -23,8 +23,8 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole userRole;
+    @Column(name = "user_role", nullable = false)
+    private UserRole role;
 
     private int stars = 0;
 }

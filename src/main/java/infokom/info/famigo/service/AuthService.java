@@ -3,11 +3,9 @@ package infokom.info.famigo.service;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -15,9 +13,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User register(String name, String username, String password, UserRole role) {
@@ -29,7 +27,7 @@ public class AuthService {
         user.setName(name);
         user.setUsername(username);
         user.setPasswordHash(passwordEncoder.encode(password));
-        user.setUserRole(role);
+        user.setRole(role);
 
         return userRepository.save(user);
     }

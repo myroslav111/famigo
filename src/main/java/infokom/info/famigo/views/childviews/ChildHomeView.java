@@ -1,4 +1,4 @@
-package infokom.info.famigo.views;
+package infokom.info.famigo.views.childviews;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
@@ -7,14 +7,15 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.service.SessionService;
+import infokom.info.famigo.views.securityviews.LoginView;
 
-@Route("parent")
-public class ParentHomeView extends VerticalLayout implements BeforeEnterObserver {
+@Route("child")
+public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver {
     private final SessionService sessionService;
 
-    public ParentHomeView(SessionService sessionService) {
+    public ChildHomeView(SessionService sessionService) {
         this.sessionService = sessionService;
-        add(new H1("Parent Home"));
+        add(new H1("Child Home"));
 
         Button button = new Button("Logout");
         button.addClickListener(e -> {
@@ -25,10 +26,9 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         add(button);
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent e){
+    public void beforeEnter(BeforeEnterEvent event) {
         if(!sessionService.isLoggedIn()){
-            e.forwardTo(LoginView.class);
+            event.forwardTo(LoginView.class);
         }
     }
 }
