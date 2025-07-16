@@ -1,4 +1,4 @@
-package infokom.info.famigo.views;
+package infokom.info.famigo.views.securityviews;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -9,7 +9,6 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.Router;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.AuthService;
@@ -21,12 +20,10 @@ public class RegisterView extends VerticalLayout {
 
     private final AuthService authService;
     private final SessionService sessionService;
-//    private final Router router;
 
     public RegisterView(AuthService authService, SessionService sessionService) {
         this.authService = authService;
         this.sessionService = sessionService;
-//        this.router = router;
 
         TextField nameField = new TextField("Name");
         TextField usernameField = new TextField("Username");
@@ -55,9 +52,9 @@ public class RegisterView extends VerticalLayout {
             sessionService.login(user);
             Notification.show("Register successful " + user.getUsername());
 
-            if(user.getUserRole() ==  UserRole.PARENT){
+            if(user.getRole() ==  UserRole.PARENT){
                 getUI().ifPresent(ui -> ui.navigate("parent"));
-            } else if (user.getUserRole() == UserRole.CHILD) {
+            } else if (user.getRole() == UserRole.CHILD) {
                 getUI().ifPresent(ui -> ui.navigate("child"));
             }else {
                 Notification.show("Unbekannte Rolle!");
