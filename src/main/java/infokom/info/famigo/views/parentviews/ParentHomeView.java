@@ -17,6 +17,7 @@ import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
+import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
 import java.util.List;
@@ -27,12 +28,14 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
     private final SessionService sessionService;
     private final TaskService taskService;
     private final UserService userService;
+//    private final TaskDialog taskDialog;
 
 
     public ParentHomeView(SessionService sessionService, TaskService taskService, UserService userService) {
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.userService = userService;
+//        this.taskDialog = taskDialog;
 
         setSizeFull();
         setSpacing(true);
@@ -47,8 +50,9 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
             add(createChildCard(child));
         }
 
-        Button addTaskButton = new Button("Add Task");
-        addTaskButton.addClickListener(e -> openTaskDialog());
+//        Button addTaskButton = new Button("Add Task");
+//        addTaskButton.addClickListener(e -> openTaskDialog());
+//        add(addTaskButton);
 
     }
 
@@ -68,9 +72,9 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         return layout;
     }
 
-    private void openTaskDialog(){
-
-    }
+//    private Component openTaskDialog(){
+//        return taskDialog;
+//    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent e){

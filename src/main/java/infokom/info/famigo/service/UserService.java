@@ -3,7 +3,6 @@ package infokom.info.famigo.service;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.repository.UserRepository;
-import infokom.info.famigo.security.SecurityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,13 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
     
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
+
     }
     
     public List<User> findAllChildren() {
@@ -30,8 +32,11 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        String username = SecurityUtils.getLoggedUsername();
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User wurde nicht gefunden"));
+        User currentUser = sessionService.getCurrentUser();
+        if(currentUser == null) {
+            throw new UsernameNotFoundException("Kein Benutzer in der Session gefunden");
+        }
+        return currentUser;
     }
 
     public void updateUser(User user) {
