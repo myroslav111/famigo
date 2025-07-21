@@ -2,6 +2,7 @@ package infokom.info.famigo.views.components;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -13,7 +14,11 @@ import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.TaskStatus;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
+@Component
 public class TaskDialog extends Dialog {
     private final UserService userService;
     private final TaskService taskService;
@@ -31,12 +36,20 @@ public class TaskDialog extends Dialog {
 
         TextField titleField = new TextField("Titel");
         TextArea descriptionField = new TextArea("Description");
+
         NumberField starsField = new NumberField("Stars");
         starsField.setMin(1);
+        starsField.setMax(15);
         starsField.setStep(1);
 
+        DatePicker dueDatePicker = new DatePicker("Fällig bis");
+        dueDatePicker.setPlaceholder("Datum Auswählen");
+        dueDatePicker.setValue(LocalDate.now().plusDays(1));
+
+
+
         Button saveButton = new Button("Save", event -> {
-            if (childSelect.isEmpty() || titleField.isEmpty() || starsField.isEmpty()) {
+            if (childSelect.isEmpty() || titleField.isEmpty() || starsField.isEmpty() || dueDatePicker.isEmpty()) {
                 Notification.show("Bitte alle pflichtfelder ausfüllen");
                 return;
             }
@@ -44,6 +57,7 @@ public class TaskDialog extends Dialog {
             task.setTitle(titleField.getValue());
             task.setDescription(descriptionField.getValue());
             task.setStarsReward(starsField.getValue().intValue());
+            task.setDueDate(dueDatePicker.getValue());
             task.setStatus(TaskStatus.PENDING);
             task.setAssignedTo(childSelect.getValue());
 
@@ -56,7 +70,12 @@ public class TaskDialog extends Dialog {
             close();
         });
 
-        add(new VerticalLayout(childSelect,titleField, descriptionField, starsField, saveButton));
+        add(new VerticalLayout(childSelect,
+                titleField,
+                descriptionField,
+                dueDatePicker,
+                starsField,
+                saveButton));
 
     }
 }

@@ -8,7 +8,11 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLayout;
+import infokom.info.famigo.entity.User;
 import infokom.info.famigo.service.SessionService;
+import infokom.info.famigo.service.TaskService;
+import infokom.info.famigo.service.UserService;
+import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
 
@@ -16,9 +20,17 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
 
     private final SessionService sessionService;
     private final Div contentArea = new Div();
+//    private final TaskDialog taskDialog;
+    private final UserService userService;
+    private final TaskService taskService;
 
-    public MainViewLayout(SessionService sessionService) {
+    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService) {
         this.sessionService = sessionService;
+        this.taskService = taskService;
+        this.userService = userService;
+
+
+
 
         setSizeFull();
         setPadding(false);
@@ -73,6 +85,8 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
         });
 
         Button addTaskButton = new Button("+", e -> {
+            TaskDialog taskDialog = new TaskDialog(userService, taskService);
+            taskDialog.open();
         });
 
         footer.add(taskButton, addTaskButton, rewardButton);
