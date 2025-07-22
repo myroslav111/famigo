@@ -62,7 +62,11 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
 
         // Content
         contentArea.setHeightFull();
-        contentArea.getStyle().set("padding", "1em");
+        contentArea.getStyle()
+                .set("overfllow", "auto")
+                .set("flex-grow", "1")
+                .set("min-height", "0");
+        contentArea.setWidthFull();
         add(contentArea);
         expand(contentArea); // wichtig, damit Footer unten bleibt
 
@@ -76,8 +80,19 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
         footer.setJustifyContentMode(JustifyContentMode.BETWEEN);
         footer.setAlignItems(Alignment.CENTER);
 
-        Button taskButton = new Button("Task", e -> {
-            UI.getCurrent().navigate("tasks");
+        Button taskButton = new Button("Task");
+        taskButton.addClickListener(e -> {
+
+            if (taskButton.getText().equals("Task")) {
+                UI.getCurrent().navigate("tasks");
+                taskButton.setText("Home");
+            }else{
+                UI.getCurrent().navigate("parent");
+                taskButton.setText("Task");
+            }
+
+
+
         });
 
         Button rewardButton = new Button("Reward", e -> {
@@ -91,6 +106,19 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
 
         footer.add(taskButton, addTaskButton, rewardButton);
         add(footer);
+    }
+
+    public String getCurrentBtnText(){
+        String currentPath = UI.getCurrent()
+                .getInternals()
+                .getActiveViewLocation()
+                .getPath();
+
+        if (currentPath.equals("tasks")) {
+            return "Home";
+        }else{
+            return "Task";
+        }
     }
 
     @Override

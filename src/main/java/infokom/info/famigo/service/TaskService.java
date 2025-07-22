@@ -2,10 +2,10 @@ package infokom.info.famigo.service;
 
 import infokom.info.famigo.entity.Task;
 import infokom.info.famigo.repository.TaskRepository;
-import infokom.info.famigo.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +33,13 @@ public class TaskService {
     public List<Task> findByAssignedTo(Long userId) {
         return taskRepository.findAll().stream()
                 .filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId().equals(userId))
+                .toList();
+    }
+
+    public List<Task> findByAssignedToSorted(Long userId) {
+        return taskRepository.findAll().stream().
+                filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId().equals(userId))
+                .sorted(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(LocalDate::compareTo)))
                 .toList();
     }
 
