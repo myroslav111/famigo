@@ -29,11 +29,11 @@ public class Task {
     private TaskStatus status =  TaskStatus.PENDING;
 
     @ManyToOne
-    @JoinColumn(name = "assignet_to_id")
+    @JoinColumn(name = "assigned_to_id")
     private User assignedTo;
 
     @ManyToOne
-    @JoinColumn(name = "create_by_id")
+    @JoinColumn(name = "created_by_id")
     User createdBy;
 
     @ManyToOne
