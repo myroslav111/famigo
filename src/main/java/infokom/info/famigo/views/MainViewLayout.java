@@ -95,8 +95,15 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
 
         });
 
-        Button rewardButton = new Button("Reward", e -> {
-            UI.getCurrent().navigate("rewards");
+        Button rewardButton = new Button("Reward");
+        rewardButton.addClickListener(e -> {
+            if (rewardButton.getText().equals("Reward")) {
+                UI.getCurrent().navigate("rewards");
+                rewardButton.setText("Home");
+            }else{
+                UI.getCurrent().navigate("parent");
+                rewardButton.setText("Reward");
+            }
         });
 
         Button addTaskButton = new Button("+", e -> {
