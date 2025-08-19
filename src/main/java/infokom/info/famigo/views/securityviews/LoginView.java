@@ -13,7 +13,7 @@ import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.AuthService;
 import infokom.info.famigo.service.SessionService;
 
-@Route("")
+@Route("login")
 @PageTitle("Login")
 public class LoginView extends VerticalLayout {
 
