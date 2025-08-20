@@ -35,7 +35,7 @@ public class RegisterView extends VerticalLayout {
         Button registerButton = new Button("Register");
         registerButton.addClickListener(event -> handleRegistrationAndLogin(nameField, usernameField, passwordField, roleField));
 
-        Anchor loginLink = new Anchor("login", "Schon registriert? Dann hopp, zurück zum Login!");
+        Anchor loginLink = new Anchor("/", "Schon registriert? Dann hopp, zurück zum Login!");
         loginLink.getStyle().set("margin-top", "1em");
 
         add(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
@@ -59,7 +59,6 @@ public class RegisterView extends VerticalLayout {
             }else {
                 Notification.show("Unbekannte Rolle!");
             }
-//            getUI().ifPresent(ui -> ui.navigate(HomeView.class));
 
         } catch (Exception ex) {
             Notification.show("Fehler: " + ex.getMessage(), 5000, Notification.Position.MIDDLE);

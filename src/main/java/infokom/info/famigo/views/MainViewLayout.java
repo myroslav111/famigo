@@ -7,30 +7,31 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
-import infokom.info.famigo.entity.User;
-import infokom.info.famigo.service.SessionService;
-import infokom.info.famigo.service.TaskService;
-import infokom.info.famigo.service.UserService;
+import infokom.info.famigo.service.*;
 import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
 
-public class MainViewLayout extends VerticalLayout implements RouterLayout {
+public class MainViewLayout extends VerticalLayout implements RouterLayout, AfterNavigationObserver {
 
     private final SessionService sessionService;
     private final Div contentArea = new Div();
-//    private final TaskDialog taskDialog;
     private final UserService userService;
     private final TaskService taskService;
+    private final RewardService rewardService;
 
-    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService) {
+    private Button taskButton;
+    private Button rewardButton;
+
+
+    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService) {
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.userService = userService;
-
-
-
+        this.rewardService = rewardService;
 
         setSizeFull();
         setPadding(false);
@@ -80,34 +81,35 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
         footer.setJustifyContentMode(JustifyContentMode.BETWEEN);
         footer.setAlignItems(Alignment.CENTER);
 
-        Button taskButton = new Button("Task");
-        taskButton.addClickListener(e -> {
+        taskButton = new Button();
+        rewardButton = new Button();
 
-            if (taskButton.getText().equals("Task")) {
-                UI.getCurrent().navigate("tasks");
-                taskButton.setText("Home");
-            }else{
+        taskButton.addClickListener(e -> {
+            String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+
+            if (path.equals("tasks")) {
                 UI.getCurrent().navigate("parent");
-                taskButton.setText("Task");
+            }else{
+                UI.getCurrent().navigate("tasks");
             }
 
-
-
+            updateButtonText();
         });
 
-        Button rewardButton = new Button("Reward");
         rewardButton.addClickListener(e -> {
-            if (rewardButton.getText().equals("Reward")) {
-                UI.getCurrent().navigate("rewards");
-                rewardButton.setText("Home");
-            }else{
+            String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+
+            if (path.equals("rewards")) {
                 UI.getCurrent().navigate("parent");
-                rewardButton.setText("Reward");
+            }else{
+                UI.getCurrent().navigate("rewards");
             }
+
+            updateButtonText();
         });
 
         Button addTaskButton = new Button("+", e -> {
-            TaskDialog taskDialog = new TaskDialog(userService, taskService);
+            TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
             taskDialog.open();
         });
 
@@ -115,17 +117,31 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout {
         add(footer);
     }
 
-    public String getCurrentBtnText(){
-        String currentPath = UI.getCurrent()
+
+    private void updateButtonText(){
+        String path = UI.getCurrent()
                 .getInternals()
                 .getActiveViewLocation()
                 .getPath();
 
-        if (currentPath.equals("tasks")) {
-            return "Home";
-        }else{
-            return "Task";
+        if(path.equals("tasks")){
+            taskButton.setText("Home");
+            System.out.println(path);
+        }else {
+            taskButton.setText("Task");
+            System.out.println(path);
         }
+
+        if(path.equals("rewards")){
+            rewardButton.setText("Home");
+        }else {
+            rewardButton.setText("Reward");
+        }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent e){
+        updateButtonText();
     }
 
     @Override
