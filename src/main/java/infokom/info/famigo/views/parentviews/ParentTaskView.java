@@ -32,7 +32,8 @@ public class ParentTaskView extends VerticalLayout {
     private ComboBox<User> childrenSelector;
     private VerticalLayout taskLayout;
 
-    public ParentTaskView(UserService userService, TaskService taskService, TaskTemplateService taskTemplateService) {
+
+    private ParentTaskView(UserService userService, TaskService taskService, TaskTemplateService taskTemplateService) {
         this.userService = userService;
         this.taskService = taskService;
         this.taskTemplateService = taskTemplateService;
@@ -56,6 +57,8 @@ public class ParentTaskView extends VerticalLayout {
         add(childrenSelector, taskLayout);
     }
 
+
+
     public void refreshTasks() {
         taskLayout.removeAll();
 
@@ -66,7 +69,7 @@ public class ParentTaskView extends VerticalLayout {
 
         if(!tasks.isEmpty()) {
             taskLayout.add(new H4("Individuelle Aufgaben"));
-            tasks.forEach(task -> taskLayout.add(createTaskCard(task)));
+            tasks.forEach(task -> taskLayout.add(createTaskCard(task, true)));
         }
 
         List<TaskTemplate> templates = taskTemplateService.findAll();
@@ -77,7 +80,7 @@ public class ParentTaskView extends VerticalLayout {
 
     }
 
-    private Component createTaskCard(Task task){
+    private Component createTaskCard(Task task, boolean flags){
         Card card = new Card();
         card.getStyle().set("border", "1px solid #ccc");
         card.setWidthFull();
@@ -86,6 +89,9 @@ public class ParentTaskView extends VerticalLayout {
         content.add(new H5(task.getTitle()));
         content.add(new Span("Sterne: " + task.getStarsReward()));
         content.add(new Span("Fällig bis: " + (task.getDueDate() != null ? task.getDueDate().toString() : "nicht gesetzt")));
+        if(flags){
+            content.add(new Span("Status: " + task.getStatus().toString()));
+        }
 
         Button detailsButton = new Button("Details");
         detailsButton.addClickListener(e -> {

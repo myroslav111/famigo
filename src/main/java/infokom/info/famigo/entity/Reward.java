@@ -1,5 +1,6 @@
 package infokom.info.famigo.entity;
 
+import infokom.info.famigo.entity.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -17,6 +17,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.Reward;
 import infokom.info.famigo.entity.User;
+import infokom.info.famigo.entity.enums.TaskStatus;
 import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
@@ -48,7 +49,7 @@ public class ParentRewardView extends VerticalLayout {
         childSelect.setItems(userService.findAllChildren());
         childSelect.addValueChangeListener(event -> refreshRewards());
 
-        Button addRewardButton = new Button("Neue Belohnung hinzufügen", e -> openRewardDialog());
+//        Button addRewardButton = new Button("Neue Belohnung hinzufügen", e -> openRewardDialog());
 
         rewardLayout = new VerticalLayout();
         rewardLayout.setSpacing(true);
@@ -56,7 +57,8 @@ public class ParentRewardView extends VerticalLayout {
         rewardLayout.setHeightFull();
         rewardLayout.getStyle().set("overflow", "auto");
 
-        add(childSelect, addRewardButton, rewardLayout);
+//        add(childSelect, addRewardButton, rewardLayout);
+        add(childSelect, rewardLayout);
 
 
 
@@ -64,7 +66,7 @@ public class ParentRewardView extends VerticalLayout {
 
     private void openRewardDialog() {
        Dialog dialog = new Dialog();
-       dialog.setWidth("60%");
+       dialog.setWidth("90%");
 
         TextField title = new TextField("Titel");
         TextArea description = new TextArea("Beschreibung");
@@ -110,6 +112,9 @@ public class ParentRewardView extends VerticalLayout {
                 reward.setRedeemed(true);
                 rewardService.save(reward);
                 Notification.show("Belohnung als eingelöst markiert");
+                User currentChild = reward.getChild();
+                currentChild.setStars(currentChild.getStars() + reward.getStarCost());
+                userService.updateUser(currentChild);
                 refreshRewards();
             });
 
