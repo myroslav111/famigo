@@ -65,7 +65,8 @@ public class ParentTaskView extends VerticalLayout {
         User selectedChild = childrenSelector.getValue();
         if (selectedChild == null) return;
 
-        List<Task> tasks = taskService.findByAssignedToSorted(selectedChild.getId());
+//        List<Task> tasks = taskService.findByAssignedToSorted(selectedChild.getId());
+        List<Task> tasks = taskService.findByAssignedToSortedByDueDate(selectedChild.getId());
 
         if(!tasks.isEmpty()) {
             taskLayout.add(new H4("Individuelle Aufgaben"));

@@ -79,6 +79,8 @@ public class TaskDialog extends Dialog {
             reward.setChild(childSelect.getValue());
             reward.setCreatedBy(currentParent);
 
+            reward.setTask(task);
+
             rewardService.save(reward);
 
             Notification.show("Task gespeichert");
