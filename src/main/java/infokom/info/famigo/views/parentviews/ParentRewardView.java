@@ -13,13 +13,16 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.Reward;
+import infokom.info.famigo.entity.Task;
 import infokom.info.famigo.entity.User;
+import infokom.info.famigo.entity.enums.TaskStatus;
 import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
 
 import java.util.List;
+import java.util.Optional;
 
 @Route(value = "rewards",  layout = MainViewLayout.class)
 @PageTitle("Reward")
@@ -30,7 +33,6 @@ public class ParentRewardView extends VerticalLayout {
     private final TaskService taskService;
 
     private ComboBox<User> childSelect;
-    private VerticalLayout rewardLayout;
     private VerticalLayout taskDoneLayout;
     private VerticalLayout taskPendingLayout;
     private TabSheet tabSheet;
@@ -55,12 +57,6 @@ public class ParentRewardView extends VerticalLayout {
         childSelect.setItems(userService.findAllChildren());
         childSelect.addValueChangeListener(event -> refreshRewards());
 
-        rewardLayout = new VerticalLayout();
-        rewardLayout.setSpacing(true);
-        rewardLayout.setWidthFull();
-        rewardLayout.setHeightFull();
-        rewardLayout.getStyle().set("overflow", "auto");
-
         taskDoneLayout = new VerticalLayout();
         taskDoneLayout.setSpacing(true);
         taskDoneLayout.setWidthFull();
@@ -73,8 +69,8 @@ public class ParentRewardView extends VerticalLayout {
         taskPendingLayout.setHeightFull();
         taskPendingLayout.getStyle().set("overflow", "auto");
 
-        tabSheet.add("Erledigte", taskDoneLayout);
         tabSheet.add("Unerledigte", taskPendingLayout);
+        tabSheet.add("Erledigte", taskDoneLayout);
 
         add(childSelect, tabSheet);
     }
@@ -94,6 +90,9 @@ public class ParentRewardView extends VerticalLayout {
 
         if (!reward.isRedeemed()) {
             Button markRedeemed = new Button("Als eingelöst markieren", e -> {
+                Optional<Task> task = taskService.findById(reward.getTask().getId());
+                task.get().setStatus(TaskStatus.APPROVED);
+                taskService.updateTask(task.get());
                 reward.setRedeemed(true);
                 rewardService.save(reward);
                 Notification.show("Belohnung als eingelöst markiert");
