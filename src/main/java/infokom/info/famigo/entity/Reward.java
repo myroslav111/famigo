@@ -31,4 +31,8 @@ public class Reward {
     @JoinColumn(name = "created_by_id")
     private User createdBy;
 
+    @ManyToOne
+    @JoinColumn(name = "task_id")
+    private Task task;
+
 }

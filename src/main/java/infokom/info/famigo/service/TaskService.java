@@ -1,6 +1,7 @@
 package infokom.info.famigo.service;
 
 import infokom.info.famigo.entity.Task;
+import infokom.info.famigo.entity.enums.TaskStatus;
 import infokom.info.famigo.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +38,21 @@ public class TaskService {
     }
 
     public List<Task> findByAssignedToSorted(Long userId) {
-        return taskRepository.findAll().stream().
-                filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId().equals(userId))
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getAssignedTo() != null && task.getAssignedTo().getId().equals(userId))
                 .sorted(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(LocalDate::compareTo)))
+                .toList();
+    }
+
+    public List<Task> findByAssignedToSortedByDueDate(Long userId) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getAssignedTo() != null
+                              && task.getAssignedTo().getId().equals(userId)
+                              && task.getDueDate() != null
+                              && task.getDueDate().isAfter(LocalDate.now().minusDays(1))
+                              && task.getStatus() != TaskStatus.APPROVED
+                              )
+                .sorted(Comparator.comparing(Task::getDueDate))
                 .toList();
     }
 
