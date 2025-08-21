@@ -23,7 +23,7 @@ import infokom.info.famigo.views.securityviews.LoginView;
 import java.util.List;
 
 @Route(value = "parent", layout = MainViewLayout.class)
-@PageTitle("Elterbereich")
+@PageTitle("Elternbereich")
 public class ParentHomeView extends VerticalLayout implements BeforeEnterObserver {
     private final SessionService sessionService;
     private final TaskService taskService;
@@ -41,7 +41,7 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         setSpacing(true);
         setPadding(true);
 
-        H2 title = new H2("Elterbereich");
+        H2 title = new H2("Elternbereich");
 
         add(title);
 
