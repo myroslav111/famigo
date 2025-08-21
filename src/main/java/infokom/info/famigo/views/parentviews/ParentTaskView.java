@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.Task;
@@ -30,13 +31,21 @@ public class ParentTaskView extends VerticalLayout {
     private final TaskTemplateService taskTemplateService;
 
     private ComboBox<User> childrenSelector;
-    private VerticalLayout taskLayout;
+
+    private VerticalLayout standardTaskLayout;
+    private VerticalLayout specialTaskLayout;
+    private TabSheet tabSheet;
 
 
     private ParentTaskView(UserService userService, TaskService taskService, TaskTemplateService taskTemplateService) {
         this.userService = userService;
         this.taskService = taskService;
         this.taskTemplateService = taskTemplateService;
+
+        tabSheet = new TabSheet();
+        tabSheet.setWidthFull();
+        tabSheet.setHeightFull();
+        tabSheet.getStyle().set("overflow", "auto");
 
         setSpacing(true);
         setPadding(true);
@@ -48,35 +57,43 @@ public class ParentTaskView extends VerticalLayout {
         childrenSelector.setItems(userService.findAllChildren());
         childrenSelector.addValueChangeListener(e -> refreshTasks());
 
-        taskLayout = new VerticalLayout();
-        taskLayout.setSpacing(true);
-        taskLayout.setWidthFull();
-        taskLayout.setHeightFull();
-        taskLayout.getStyle().set("overflow", "auto");
+        standardTaskLayout = new VerticalLayout();
+        standardTaskLayout.setSpacing(true);
+        standardTaskLayout.setWidthFull();
+        standardTaskLayout.setHeightFull();
+        standardTaskLayout.getStyle().set("overflow", "auto");
 
-        add(childrenSelector, taskLayout);
+        specialTaskLayout = new VerticalLayout();
+        specialTaskLayout.setSpacing(true);
+        specialTaskLayout.setWidthFull();
+        specialTaskLayout.setHeightFull();
+        specialTaskLayout.getStyle().set("overflow", "auto");
+
+        tabSheet.add("Specialaufgaben",  specialTaskLayout);
+        tabSheet.add("Standardaufgaben",  standardTaskLayout);
+
+        add(childrenSelector, tabSheet);
     }
 
 
-
     public void refreshTasks() {
-        taskLayout.removeAll();
+        specialTaskLayout.removeAll();
+        standardTaskLayout.removeAll();
 
         User selectedChild = childrenSelector.getValue();
         if (selectedChild == null) return;
 
-//        List<Task> tasks = taskService.findByAssignedToSorted(selectedChild.getId());
         List<Task> tasks = taskService.findByAssignedToSortedByDueDate(selectedChild.getId());
 
         if(!tasks.isEmpty()) {
-            taskLayout.add(new H4("Individuelle Aufgaben"));
-            tasks.forEach(task -> taskLayout.add(createTaskCard(task, true)));
+            specialTaskLayout.add(new H4("Individuelle Aufgaben"));
+            tasks.forEach(task -> specialTaskLayout.add(createTaskCard(task, true)));
         }
 
         List<TaskTemplate> templates = taskTemplateService.findAll();
         if(!templates.isEmpty()) {
-            taskLayout.add(new H4("Standart-Aufgaben"));
-            templates.forEach(template -> taskLayout.add(createTemplateCard(template)));
+            standardTaskLayout.add(new H4("Standardaufgaben"));
+            templates.forEach(template -> standardTaskLayout.add(createTemplateCard(template)));
         }
 
     }
@@ -140,14 +157,10 @@ public class ParentTaskView extends VerticalLayout {
             refreshTasks();
         });
 
-
-
         HorizontalLayout buttons = new HorizontalLayout(detailsButton);
         content.add(buttons);
         card.add(content);
 
         return card;
-
-
     }
 }
