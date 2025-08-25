@@ -99,9 +99,9 @@ public class ParentTaskView extends VerticalLayout {
     }
 
     private Component createTaskCard(Task task, boolean flags){
-        Card card = new Card();
-        card.getStyle().set("border", "1px solid #ccc");
-        card.setWidthFull();
+        Card cardTask = new Card();
+        cardTask.getStyle().set("border", "1px solid #ccc");
+        cardTask.setWidthFull();
 
         VerticalLayout content = new VerticalLayout();
         content.add(new H5(task.getTitle()));
@@ -120,8 +120,8 @@ public class ParentTaskView extends VerticalLayout {
         });
 
         content.add(detailsButton);
-        card.add(content);
-        return card;
+        cardTask.add(content);
+        return cardTask;
     }
 
     private Component createTemplateCard(TaskTemplate template){
