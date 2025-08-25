@@ -35,6 +35,7 @@ public class ParentRewardView extends VerticalLayout {
     private ComboBox<User> childSelect;
     private VerticalLayout taskDoneLayout;
     private VerticalLayout taskPendingLayout;
+    private VerticalLayout taskApprovedLayout;
     private TabSheet tabSheet;
 
     public ParentRewardView(UserService userService, RewardService rewardService,  TaskService taskService) {
@@ -69,8 +70,16 @@ public class ParentRewardView extends VerticalLayout {
         taskPendingLayout.setHeightFull();
         taskPendingLayout.getStyle().set("overflow", "auto");
 
-        tabSheet.add("Unerledigte", taskPendingLayout);
-        tabSheet.add("Erledigte", taskDoneLayout);
+        taskApprovedLayout = new VerticalLayout();
+        taskApprovedLayout.setSpacing(true);
+        taskApprovedLayout.setWidthFull();
+        taskApprovedLayout.setHeightFull();
+        taskApprovedLayout.getStyle().set("overflow", "auto");
+
+        tabSheet.add("Pending", taskPendingLayout);
+        tabSheet.add("Done", taskDoneLayout);
+        tabSheet.add("Approved", taskApprovedLayout);
+
 
         add(childSelect, tabSheet);
     }
@@ -80,15 +89,15 @@ public class ParentRewardView extends VerticalLayout {
         Card card = new Card();
         card.setWidthFull();
 
-
         VerticalLayout layout = new VerticalLayout(
                 new H5(reward.getTitle()),
                 new Span("Kosten " + reward.getStarCost() + " ⭐"),
                 new Paragraph(reward.getDescription()),
-                new Span("Status: " + ((reward.isRedeemed()) ? "✅ Eingelöst" : "⏳ Offen"))
+//                new Span("Status: " + (reward.getTask().getStatus().equals(TaskStatus.PENDING) ? "⏳ Offen" : "✅ Eingelöst"))
+                new Span("Status: " + (getStatusTask(reward)))
         );
 
-        if (!reward.isRedeemed()) {
+        if (reward.getTask().getStatus() == TaskStatus.DONE) {
             Button markRedeemed = new Button("Als eingelöst markieren", e -> {
                 Optional<Task> task = taskService.findById(reward.getTask().getId());
                 task.get().setStatus(TaskStatus.APPROVED);
@@ -109,6 +118,17 @@ public class ParentRewardView extends VerticalLayout {
         return card;
     }
 
+    private String getStatusTask(Reward reward) {
+        String status = switch (reward.getTask().getStatus()) {
+            case PENDING -> "⏳ noch nicht abgenommen";
+            case DONE -> "✅ ist erledigt";
+            case APPROVED -> "ist erledigt und angenommen";
+            default -> "etwas nicht stimmt";
+        };
+
+        return status;
+    }
+
     private void refreshRewards() {
         taskDoneLayout.removeAll();
         taskPendingLayout.removeAll();
@@ -119,10 +139,12 @@ public class ParentRewardView extends VerticalLayout {
         List<Reward> rewards = rewardService.findByChildId(selectedChild.getId());
 
         rewards.forEach(reward -> {
-            if(reward.isRedeemed()) {
+            if(reward.getTask().getStatus().equals(TaskStatus.DONE)) {
                 taskDoneLayout.add(createRewardCard(reward));
-            }else {
+            }else if(reward.getTask().getStatus().equals(TaskStatus.PENDING)) {
                 taskPendingLayout.add(createRewardCard(reward));
+            }else{
+                taskApprovedLayout.add(createRewardCard(reward));
             }
         });
     }

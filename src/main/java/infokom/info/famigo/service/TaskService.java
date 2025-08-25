@@ -60,6 +60,17 @@ public class TaskService {
                 .toList();
     }
 
+    public List<Task> findTasksDueTodayForChild(Long userId) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getAssignedTo() != null
+                && task.getAssignedTo().getId().equals(userId)
+                && task.getDueDate() != null
+                && task.getDueDate().isEqual(LocalDate.now())
+                && task.getStatus().equals(TaskStatus.PENDING)
+                )
+                .toList();
+    }
+
     public void deleteById(Long id) {
         taskRepository.deleteById(id);
     }

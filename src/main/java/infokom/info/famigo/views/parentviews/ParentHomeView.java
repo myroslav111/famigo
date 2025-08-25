@@ -35,7 +35,6 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.userService = userService;
-//        this.taskDialog = taskDialog;
 
         setSizeFull();
         setSpacing(true);
@@ -49,10 +48,6 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         for (User child : children) {
             add(createChildCard(child));
         }
-
-//        Button addTaskButton = new Button("Add Task");
-//        addTaskButton.addClickListener(e -> openTaskDialog());
-//        add(addTaskButton);
 
     }
 
@@ -71,10 +66,6 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         layout.add(avatar, details);
         return layout;
     }
-
-//    private Component openTaskDialog(){
-//        return taskDialog;
-//    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent e){
