@@ -10,7 +10,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
+import infokom.info.famigo.entity.User;
+import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.*;
+import infokom.info.famigo.views.components.StarExchangeDialog;
 import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
@@ -32,6 +35,8 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         this.taskService = taskService;
         this.userService = userService;
         this.rewardService = rewardService;
+
+        User currentUser = sessionService.getCurrentUser();
 
         setSizeFull();
         setPadding(false);
@@ -87,10 +92,18 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         taskButton.addClickListener(e -> {
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
 
-            if (path.equals("tasks")) {
-                UI.getCurrent().navigate("parent");
-            }else{
-                UI.getCurrent().navigate("tasks");
+            if(currentUser.getRole().equals(UserRole.PARENT)){
+                if (path.equals("tasks")) {
+                    UI.getCurrent().navigate("parent");
+                }else{
+                    UI.getCurrent().navigate("tasks");
+                }
+            }else {
+                if (path.equals("child/tasks")) {
+                    UI.getCurrent().navigate("child");
+                }else{
+                    UI.getCurrent().navigate("child/tasks");
+                }
             }
 
             updateButtonText();
@@ -99,18 +112,32 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         rewardButton.addClickListener(e -> {
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
 
-            if (path.equals("rewards")) {
-                UI.getCurrent().navigate("parent");
+            if(currentUser.getRole().equals(UserRole.PARENT)){
+                if (path.equals("rewards")) {
+                    UI.getCurrent().navigate("parent");
+                }else{
+                    UI.getCurrent().navigate("rewards");
+                }
             }else{
-                UI.getCurrent().navigate("rewards");
+                if (path.equals("child/rewards")) {
+                    UI.getCurrent().navigate("child");
+                }else{
+                    UI.getCurrent().navigate("child/rewards");
+                }
             }
 
             updateButtonText();
         });
 
         Button addTaskButton = new Button("+", e -> {
-            TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
-            taskDialog.open();
+            if(currentUser.getRole().equals(UserRole.PARENT)){
+                TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
+                taskDialog.open();
+            }else{
+                StarExchangeDialog starExchangeDialog = new StarExchangeDialog();
+                starExchangeDialog.open();
+            }
+
         });
 
         footer.add(taskButton, addTaskButton, rewardButton);
@@ -124,7 +151,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
                 .getActiveViewLocation()
                 .getPath();
 
-        if(path.equals("tasks")){
+        if(path.equals("tasks") || path.equals("child/tasks")) {
             taskButton.setText("Home");
             System.out.println(path);
         }else {
@@ -132,7 +159,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
             System.out.println(path);
         }
 
-        if(path.equals("rewards")){
+        if(path.equals("rewards") || path.equals("child/rewards")) {
             rewardButton.setText("Home");
         }else {
             rewardButton.setText("Reward");
