@@ -97,7 +97,7 @@ public class ParentRewardView extends VerticalLayout {
                 new Span("Status: " + (getStatusTask(reward)))
         );
 
-        if (reward.getTask().getStatus() == TaskStatus.DONE) {
+        if (reward.getTask().getStatus().equals(TaskStatus.DONE)) {
             Button markRedeemed = new Button("Als eingelöst markieren", e -> {
                 Optional<Task> task = taskService.findById(reward.getTask().getId());
                 task.get().setStatus(TaskStatus.APPROVED);
