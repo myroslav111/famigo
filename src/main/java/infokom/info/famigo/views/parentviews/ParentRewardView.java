@@ -94,7 +94,8 @@ public class ParentRewardView extends VerticalLayout {
                 new Span("Kosten " + reward.getStarCost() + " ⭐"),
                 new Paragraph(reward.getDescription()),
 //                new Span("Status: " + (reward.getTask().getStatus().equals(TaskStatus.PENDING) ? "⏳ Offen" : "✅ Eingelöst"))
-                new Span("Status: " + (getStatusTask(reward)))
+                new Span("Status: " + (getStatusTask(reward))),
+                new Span(reward.getTask().getTemplate() == null ? "Stammt aus speziellen Aufgaben" : "Stammt aus standarten Aufgaben")
         );
 
         if (reward.getTask().getStatus().equals(TaskStatus.DONE)) {
@@ -102,6 +103,7 @@ public class ParentRewardView extends VerticalLayout {
                 Optional<Task> task = taskService.findById(reward.getTask().getId());
                 task.get().setStatus(TaskStatus.APPROVED);
                 taskService.updateTask(task.get());
+
                 reward.setRedeemed(true);
                 rewardService.save(reward);
                 Notification.show("Belohnung als eingelöst markiert");
@@ -111,7 +113,23 @@ public class ParentRewardView extends VerticalLayout {
                 refreshRewards();
             });
 
-            layout.add(markRedeemed);
+            Button markAsUndone = new Button("Ablehnen");
+            markAsUndone.addClickListener(e -> {
+                if(reward.getTask().getTemplate() != null ){
+                    rewardService.delete(reward.getId());
+                    taskService.deleteById(reward.getTask().getId());
+                    refreshRewards();
+                    return;
+                }else{
+                    reward.setRedeemed(false);
+                    Optional<Task> task = taskService.findById(reward.getTask().getId());
+                    task.get().setStatus(TaskStatus.PENDING);
+                    taskService.updateTask(task.get());
+                    refreshRewards();
+                }
+            });
+
+            layout.add(markRedeemed,  markAsUndone);
         }
 
         card.add(layout);
@@ -137,6 +155,7 @@ public class ParentRewardView extends VerticalLayout {
         if(selectedChild == null) return;
 
         List<Reward> rewards = rewardService.findByChildId(selectedChild.getId());
+
 
         rewards.forEach(reward -> {
             if(reward.getTask().getStatus().equals(TaskStatus.DONE)) {

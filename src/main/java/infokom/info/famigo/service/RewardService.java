@@ -15,8 +15,8 @@ public class RewardService {
 
     }
 
-    public Reward save(Reward reward) {
-        return rewardRepository.save(reward);
+    public void save(Reward reward) {
+         rewardRepository.save(reward);
     }
 
     public List<Reward> findByChildId(Long childId) {
