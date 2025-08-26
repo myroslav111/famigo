@@ -10,9 +10,11 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import infokom.info.famigo.entity.Reward;
 import infokom.info.famigo.entity.Task;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.TaskStatus;
+import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
@@ -26,15 +28,17 @@ import java.util.List;
 @PageTitle("Childbereich")
 public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver {
     private final SessionService sessionService;
-    private final UserService userService;
     private final TaskService taskService;
+    private final RewardService rewardService;
+    private final UserService userService;
 
     private VerticalLayout currentTaskLayout;
 
-    public ChildHomeView(SessionService sessionService, UserService userService, TaskService taskService) {
+    public ChildHomeView(SessionService sessionService, TaskService taskService, RewardService rewardService, UserService userService) {
         this.sessionService = sessionService;
-        this.userService = userService;
         this.taskService = taskService;
+        this.rewardService = rewardService;
+        this.userService = userService;
 
         setSpacing(true);
         setWidthFull();
@@ -60,7 +64,6 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
 
         add(new H4("Aktuell zur Erledigung "));
         add(currentTaskLayout);
-
     }
 
     private Component createTaskChildCard(Task task) {
@@ -85,6 +88,16 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         markAsDoneButton.addClickListener(event -> {
             task.setStatus(TaskStatus.DONE);
             taskService.updateTask(task);
+
+            Reward reward = new Reward();
+            reward.setTitle(task.getTitle());
+            reward.setDescription(task.getDescription());
+            reward.setStarCost(task.getStarsReward());
+            reward.setChild(userService.getCurrentUser());
+            reward.setTask(task);
+
+            rewardService.save(reward);
+
             refreshTasks();
         });
 

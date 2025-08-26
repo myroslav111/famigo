@@ -42,15 +42,17 @@ public class ParentTaskView extends VerticalLayout {
         this.taskService = taskService;
         this.taskTemplateService = taskTemplateService;
 
+        setSpacing(true);
+        setPadding(true);
+        setSizeFull();
+        setWidthFull();
+
         tabSheet = new TabSheet();
         tabSheet.setWidthFull();
         tabSheet.setHeightFull();
         tabSheet.getStyle().set("overflow", "auto");
 
-        setSpacing(true);
-        setPadding(true);
-        setSizeFull();
-        setWidthFull();
+
 
         childrenSelector = new ComboBox<>("Kind auswählen");
         childrenSelector.setItemLabelGenerator(User::getName);
