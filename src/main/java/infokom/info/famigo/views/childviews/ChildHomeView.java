@@ -19,7 +19,6 @@ import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
-import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
 import java.util.List;

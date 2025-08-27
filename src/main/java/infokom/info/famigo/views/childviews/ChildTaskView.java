@@ -24,6 +24,7 @@ import infokom.info.famigo.service.TaskTemplateService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Route(value = "child/tasks",  layout = MainViewLayout.class)
@@ -83,7 +84,7 @@ public class ChildTaskView extends VerticalLayout {
 
         VerticalLayout content = new VerticalLayout();
         content.add(new H5(task.getTitle()));
-        content.add(new Span("Sterne: " + task.getStarsReward()));
+        content.add(new Span("⭐: " + task.getStarsReward()));
         content.add(new Span("Fällig bis: " + (task.getDueDate() != null ? task.getDueDate().toString() : "nicht gesetzt")));
 
         Button detailsButton = new Button("Details");
@@ -130,6 +131,7 @@ public class ChildTaskView extends VerticalLayout {
             doneTask.setTitle(task.getTitle());
             doneTask.setStarsReward(task.getStarsReward());
             doneTask.setDescription(task.getDescription());
+            doneTask.setDueDate(LocalDate.now());
             doneTask.setStatus(TaskStatus.DONE);
             doneTask.setAssignedTo(userService.getCurrentUser());
             doneTask.setTemplate(task);
@@ -157,7 +159,7 @@ public class ChildTaskView extends VerticalLayout {
         specialTasksLayout.removeAll();
 
         User user = userService.getCurrentUser();
-        List<Task> specialTasks = taskService.findStillValidTasks(user.getId());
+        List<Task> specialTasks = taskService.findStillValidTasksAndStatusPending(user.getId());
 
         if (!specialTasks.isEmpty()){
             specialTasks.forEach(specialTask -> specialTasksLayout.add(createSpecialTaskCard(specialTask)));

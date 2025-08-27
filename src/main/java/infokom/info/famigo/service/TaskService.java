@@ -63,21 +63,45 @@ public class TaskService {
     public List<Task> findTasksDueTodayForChild(Long userId) {
         return taskRepository.findAll().stream()
                 .filter(task -> task.getAssignedTo() != null
-                && task.getAssignedTo().getId().equals(userId)
-                && task.getDueDate() != null
-                && task.getDueDate().isEqual(LocalDate.now())
-                && task.getStatus().equals(TaskStatus.PENDING)
+                        && task.getAssignedTo().getId().equals(userId)
+                        && task.getDueDate() != null
+                        && task.getDueDate().isEqual(LocalDate.now())
+                        && task.getStatus().equals(TaskStatus.PENDING)
                 )
                 .toList();
     }
 
-    public List<Task> findStillValidTasks(Long userId) {
+    public List<Task> findStillValidTasksAndStatusPending(Long userId) {
         return taskRepository.findAll().stream()
                 .filter(task -> task.getAssignedTo() != null
-                && task.getAssignedTo().getId().equals(userId)
-                && task.getDueDate() != null
-                && task.getDueDate().isAfter(LocalDate.now().minusDays(1))
-                && task.getStatus().equals(TaskStatus.PENDING))
+                        && task.getAssignedTo().getId().equals(userId)
+                        && task.getDueDate() != null
+                        && task.getDueDate().isAfter(LocalDate.now().minusDays(1))
+                        && task.getStatus().equals(TaskStatus.PENDING))
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .toList();
+    }
+
+    public List<Task> findTasksByAssignedToAndDueDateAndStatusDone(Long userId) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getAssignedTo() != null
+                        && task.getAssignedTo().getId().equals(userId)
+                        && task.getDueDate() != null
+                        && task.getDueDate().isAfter(LocalDate.now().minusDays(1))
+                        && task.getStatus().equals(TaskStatus.DONE)
+                )
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .toList();
+    }
+
+    public List<Task> findTasksByAssignedToAndDueDateAndStatusApproved(Long userId) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getAssignedTo() != null
+                        && task.getAssignedTo().getId().equals(userId)
+                        && task.getDueDate() != null
+                        && task.getDueDate().isAfter(LocalDate.now().minusDays(1))
+                        && task.getStatus().equals(TaskStatus.APPROVED)
+                )
                 .sorted(Comparator.comparing(Task::getDueDate))
                 .toList();
     }

@@ -150,6 +150,7 @@ public class ParentRewardView extends VerticalLayout {
     private void refreshRewards() {
         taskDoneLayout.removeAll();
         taskPendingLayout.removeAll();
+        taskApprovedLayout.removeAll();
 
         User selectedChild = childSelect.getValue();
         if(selectedChild == null) return;
