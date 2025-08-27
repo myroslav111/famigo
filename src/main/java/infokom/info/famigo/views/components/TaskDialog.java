@@ -15,9 +15,7 @@ import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.TaskStatus;
 import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.TaskService;
-import infokom.info.famigo.service.TaskTemplateService;
 import infokom.info.famigo.service.UserService;
-import infokom.info.famigo.views.parentviews.ParentTaskView;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -1,8 +1,6 @@
 package infokom.info.famigo.views.parentviews;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -17,7 +15,6 @@ import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
-import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
 
 import java.util.List;
@@ -28,7 +25,7 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
     private final SessionService sessionService;
     private final TaskService taskService;
     private final UserService userService;
-//    private final TaskDialog taskDialog;
+
 
 
     public ParentHomeView(SessionService sessionService, TaskService taskService, UserService userService) {
