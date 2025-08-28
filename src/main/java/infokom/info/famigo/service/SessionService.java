@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-//@Component
-//@SessionScope
 @Service
 public class SessionService {
     private static final String USER_KEY = "loggedUser";

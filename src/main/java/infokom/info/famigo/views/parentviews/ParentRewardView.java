@@ -55,7 +55,7 @@ public class ParentRewardView extends VerticalLayout {
 
         childSelect = new ComboBox<>("Kind auswählen");
         childSelect.setItemLabelGenerator(User::getName);
-        childSelect.setItems(userService.findAllChildren());
+        childSelect.setItems(userService.findChildrenOfCurrentParent());
         childSelect.addValueChangeListener(event -> refreshRewards());
 
         taskDoneLayout = new VerticalLayout();

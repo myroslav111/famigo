@@ -26,6 +26,8 @@ public class TaskDialog extends Dialog {
     private final TaskService taskService;
     private final RewardService rewardService;
 
+    private ComboBox<User> childSelect;
+
     public TaskDialog(UserService userService, TaskService taskService,  RewardService rewardService) {
         this.userService = userService;
         this.taskService = taskService;
@@ -34,9 +36,9 @@ public class TaskDialog extends Dialog {
         setCloseOnOutsideClick(true);
         setWidth("90%");
 
-        ComboBox<User> childSelect = new ComboBox<>("Kind auswählen");
+        childSelect = new ComboBox<>("Kind auswählen");
         childSelect.setItemLabelGenerator(User::getName);
-        childSelect.setItems(userService.findAllChildren());
+//        childSelect.setItems(userService.findChildrenOfCurrentParent());
 
         TextField titleField = new TextField("Titel");
         TextArea descriptionField = new TextArea("Description");
@@ -93,5 +95,11 @@ public class TaskDialog extends Dialog {
                 starsField,
                 saveButton));
 
+    }
+
+    @Override
+    public void open() {
+        childSelect.setItems(userService.findChildrenOfCurrentParent());
+        super.open();
     }
 }

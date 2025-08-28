@@ -41,7 +41,9 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
 
         add(title);
 
-        List<User> children = userService.findAllChildren();
+        User currentParent = sessionService.getCurrentUser();
+
+        List<User> children = userService.findChildrenOfParent(currentParent);
         for (User child : children) {
             add(createChildCard(child));
         }
