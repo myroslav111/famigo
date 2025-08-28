@@ -74,7 +74,7 @@ public class ChildTaskView extends VerticalLayout {
 
         add(tabSheet);
 
-        add(new H1("Child Tasks"));
+        add(new H1("Child Tasks ✅"));
     }
 
     private Component createSpecialTaskCard(Task  task) {

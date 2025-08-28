@@ -94,7 +94,7 @@ public class ChildRewardView extends VerticalLayout {
         VerticalLayout content = new VerticalLayout();
         content.add(new H5(task.getTitle()));
         content.add(new Span("⭐: " + task.getStarsReward()));
-        content.add(task.getStatus().equals(TaskStatus.DONE) ? "⏳  Wartet auf die Bestätigung" : "✅  die Aufgabe wurde akzeptiert");
+        content.add(task.getStatus().equals(TaskStatus.DONE) ? "⏳  Wartet auf die Bestätigung" : " \uD83D\uDC4D die Aufgabe wurde akzeptiert");
 
         card.add(content);
 

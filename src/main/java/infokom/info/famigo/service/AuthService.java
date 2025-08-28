@@ -18,7 +18,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User register(String name, String username, String password, UserRole role) {
+    public User register(String name, String username, String password, UserRole role, Long parentId) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("Benutzername ist bereits vergeben.");
         }
@@ -28,6 +28,16 @@ public class AuthService {
         user.setUsername(username);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(role);
+
+        if (role.equals(UserRole.CHILD) && parentId != null) {
+            User parent = userRepository.findById(parentId)
+                    .orElseThrow(() -> new RuntimeException("Elternteil nicht gefunden"));
+
+            user.getParents().add(parent);
+            parent.getChildren().add(user);
+
+            userRepository.save(parent);
+        }
 
         return userRepository.save(user);
     }

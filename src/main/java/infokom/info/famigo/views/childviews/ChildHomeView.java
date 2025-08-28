@@ -114,7 +114,7 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         if(!currentTask.isEmpty()) {
             currentTask.forEach(task -> currentTaskLayout.add(createTaskChildCard(task)));
         }else {
-            currentTaskLayout.add(new Span("Aktuell ist keine individuelle Aufgaben zur Erledigung"));
+            currentTaskLayout.add(new Span("Aktuell ist keine individuelle Aufgaben zur Erledigung \uD83C\uDF89"));
         }
     }
 

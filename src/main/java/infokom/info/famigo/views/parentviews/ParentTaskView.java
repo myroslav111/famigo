@@ -56,7 +56,7 @@ public class ParentTaskView extends VerticalLayout {
 
         childrenSelector = new ComboBox<>("Kind auswählen");
         childrenSelector.setItemLabelGenerator(User::getName);
-        childrenSelector.setItems(userService.findAllChildren());
+        childrenSelector.setItems(userService.findChildrenOfCurrentParent());
         childrenSelector.addValueChangeListener(e -> refreshTasks());
 
         standardTaskLayout = new VerticalLayout();
