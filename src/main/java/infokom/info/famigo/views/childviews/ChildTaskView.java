@@ -143,6 +143,7 @@ public class ChildTaskView extends VerticalLayout {
             reward.setStarCost(task.getStarsReward());
             reward.setChild(userService.getCurrentUser());
             reward.setTask(doneTask);
+
             rewardService.save(reward);
 
             Notification.show("Erledigte Aufgabe wurde zum Elternteil geschickt.");

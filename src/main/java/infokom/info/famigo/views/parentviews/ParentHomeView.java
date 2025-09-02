@@ -37,11 +37,13 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         setSpacing(true);
         setPadding(true);
 
-        H2 title = new H2("Elternbereich");
+        User currentParent = sessionService.getCurrentUser();
+
+        H2 title = new H2("Elternbereich" + "(Hi: " + currentParent.getName().toUpperCase() + " dein code für Kind " + currentParent.getId().toString().toUpperCase() + ")");
 
         add(title);
 
-        User currentParent = sessionService.getCurrentUser();
+
 
         List<User> children = userService.findChildrenOfParent(currentParent);
         for (User child : children) {
