@@ -1,0 +1,9 @@
+target
+node_modules
+frontend/generated
+.mvn/wrapper/maven-wrapper.jar
+.git
+.gitignore
+.idea
+*.iml
+.DS_Store

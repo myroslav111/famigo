@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    container_name: famigo-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/famigo
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    container_name: famigo-db
+    environment:
+      - POSTGRES_DB=famigo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+volumes:
+  db_data:

@@ -38,6 +38,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         this.rewardService = rewardService;
 
         User currentUser = sessionService.getCurrentUser();
+        System.out.println("test");
 
         setSizeFull();
         setPadding(false);
