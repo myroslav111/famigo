@@ -44,6 +44,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void updateUserStar(int countOfStars){
+        User user = getCurrentUser();
+        user.setStars(countOfStars);
+
+        userRepository.save(user);
+    }
+
     public List<User> findChildrenOfParent(User parent) {
         Optional<User> managedParent = Optional.ofNullable(userRepository.findUserById(parent.getId())
                 .orElseThrow(() -> new RuntimeException("Eltern nicht gefunden")));

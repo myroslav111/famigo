@@ -88,20 +88,11 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
             task.setStatus(TaskStatus.DONE);
             taskService.updateTask(task);
 
-            Reward reward = new Reward();
-            reward.setTitle(task.getTitle());
-            reward.setDescription(task.getDescription());
-            reward.setStarCost(task.getStarsReward());
-            reward.setChild(userService.getCurrentUser());
-            reward.setTask(task);
-
-            rewardService.save(reward);
-
             refreshTasks();
         });
 
-        content.add(detailsButton);
-        card.add(content, markAsDoneButton);
+        content.add(detailsButton, markAsDoneButton);
+        card.add(content);
         return card;
     }
 

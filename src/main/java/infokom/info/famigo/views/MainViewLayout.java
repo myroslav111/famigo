@@ -28,6 +28,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
 
     private Button taskButton;
     private Button rewardButton;
+    private Button addTaskButton;
 
 
     public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService) {
@@ -88,6 +89,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
 
         taskButton = new Button();
         rewardButton = new Button();
+        addTaskButton = new Button();
 
         taskButton.addClickListener(e -> {
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
@@ -129,14 +131,22 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
             updateButtonText();
         });
 
-        Button addTaskButton = new Button("+", e -> {
+        addTaskButton.addClickListener(e -> {
+            String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+
             if(currentUser.getRole().equals(UserRole.PARENT)){
                 TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
                 taskDialog.open();
             }else{
-                StarExchangeDialog starExchangeDialog = new StarExchangeDialog();
-                starExchangeDialog.open();
+//                StarExchangeDialog starExchangeDialog = new StarExchangeDialog();
+//                starExchangeDialog.open();
+                if(path.equals("child/stars-exchange")) {
+                    UI.getCurrent().navigate("child");
+                }else{
+                    UI.getCurrent().navigate("child/stars-exchange");
+                }
             }
+            updateButtonText();
 
         });
 
@@ -163,6 +173,12 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
             rewardButton.setText("Home");
         }else {
             rewardButton.setText("Reward");
+        }
+
+        if(path.equals("child/stars-exchange")) {
+            addTaskButton.setText("Home");
+        }else{
+            addTaskButton.setText("+");
         }
     }
 
