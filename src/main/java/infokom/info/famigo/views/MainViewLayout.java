@@ -10,12 +10,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
+import infokom.info.famigo.entity.ChildRewardTransaction;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.*;
-import infokom.info.famigo.views.components.StarExchangeDialog;
+import infokom.info.famigo.views.components.NotificationPopup;
 import infokom.info.famigo.views.components.TaskDialog;
 import infokom.info.famigo.views.securityviews.LoginView;
+
+import java.util.List;
 
 
 public class MainViewLayout extends VerticalLayout implements RouterLayout, AfterNavigationObserver {
@@ -25,17 +28,20 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
     private final UserService userService;
     private final TaskService taskService;
     private final RewardService rewardService;
+    private ChildRewardTransactionService childRewardTransactionService;
 
     private Button taskButton;
     private Button rewardButton;
     private Button addTaskButton;
+    private NotificationPopup notificationPopup;
 
 
-    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService) {
+    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService, ChildRewardTransactionService childRewardTransactionService) {
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.userService = userService;
         this.rewardService = rewardService;
+        this.childRewardTransactionService = childRewardTransactionService;
 
         User currentUser = sessionService.getCurrentUser();
 
@@ -63,7 +69,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         });
         logoutButton.getStyle().setColor("black").setBackgroundColor("white");
 
-        header.add(logo, logoutButton);
+        header.add(logo, logoutButton, executeRequest(currentUser));
 
         add(header);
 
@@ -138,8 +144,6 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
                 TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
                 taskDialog.open();
             }else{
-//                StarExchangeDialog starExchangeDialog = new StarExchangeDialog();
-//                starExchangeDialog.open();
                 if(path.equals("child/stars-exchange")) {
                     UI.getCurrent().navigate("child");
                 }else{
@@ -180,6 +184,18 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         }else{
             addTaskButton.setText("+");
         }
+    }
+
+    public NotificationPopup executeRequest(User user){
+
+        if (userService.getCurrentUser().getRole().equals(UserRole.PARENT)) {
+            notificationPopup = new NotificationPopup(user, childRewardTransactionService, sessionService);
+            return  notificationPopup;
+        }else {
+            notificationPopup = new NotificationPopup(user,  childRewardTransactionService, sessionService);
+            return  notificationPopup;
+        }
+
     }
 
     @Override

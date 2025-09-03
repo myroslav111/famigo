@@ -76,6 +76,8 @@ public class ParentRewardView extends VerticalLayout {
         taskApprovedLayout.setHeightFull();
         taskApprovedLayout.getStyle().set("overflow", "auto");
 
+
+
         tabSheet.add("Pending", taskPendingLayout);
         tabSheet.add("Done", taskDoneLayout);
         tabSheet.add("Approved", taskApprovedLayout);
