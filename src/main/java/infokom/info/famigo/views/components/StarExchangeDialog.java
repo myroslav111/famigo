@@ -8,18 +8,18 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import infokom.info.famigo.entity.ChildRewardTransaction;
 import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.service.ChildRewardTransactionService;
 import infokom.info.famigo.service.RewardOptionService;
-import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class StarExchangeDialog extends Dialog {
@@ -87,6 +87,15 @@ public class StarExchangeDialog extends Dialog {
         }
         countOfStars = child.getStars() - rewardOption.getCost();
         userService.updateUserStar(countOfStars);
+
+        ChildRewardTransaction  childRewardTransaction = new ChildRewardTransaction();
+        childRewardTransaction.setRedeemedAt(LocalDateTime.now());
+        childRewardTransaction.setStarsSpent(rewardOption.getCost());
+        childRewardTransaction.setChild(child);
+        childRewardTransaction.setReward(rewardOption);
+
+        childRewardTransactionService.save(childRewardTransaction);
+
 
     }
 

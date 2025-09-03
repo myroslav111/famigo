@@ -37,5 +37,4 @@ public class RewardOption {
         this.active = true;
     }
 
-//    public RewardOption(){}
 }
