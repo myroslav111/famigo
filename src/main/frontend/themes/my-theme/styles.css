@@ -1,0 +1,176 @@
+/* ============================================================
+   famigo – Theme
+   Kinderfreundlich, aber aufgeraeumt und professionell.
+   ============================================================ */
+
+:root {
+    /* Fröhliche, aber ruhige Primärfarbe (Buttons, Fokus, Links) */
+    --lumo-primary-color: #6c5ce7;
+    --lumo-primary-color-50pct: rgba(108, 92, 231, 0.5);
+    --lumo-primary-color-10pct: rgba(108, 92, 231, 0.1);
+    --lumo-primary-text-color: #5a4bd6;
+
+    /* Weichere, kindgerechte Rundungen */
+    --lumo-border-radius-s: 0.5rem;
+    --lumo-border-radius-m: 0.9rem;
+    --lumo-border-radius-l: 1.4rem;
+
+    /* Etwas groessere, gut lesbare Schrift */
+    --lumo-font-size-m: 1.05rem;
+
+    /* famigo-Markenfarben als eigene Variablen */
+    --famigo-gradient: linear-gradient(135deg, #7f7bff 0%, #a86bff 55%, #ff8fb1 100%);
+}
+
+/* ------------------------------------------------------------
+   Login-Ansicht
+   ------------------------------------------------------------ */
+
+.login-view {
+    background: var(--famigo-gradient);
+    padding: 1rem;
+    min-height: 100vh;
+}
+
+/* Sanft treibende, farbige Lichtpunkte im Hintergrund */
+.login-view::before,
+.login-view::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(8px);
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.login-view::before {
+    width: 16rem;
+    height: 16rem;
+    background: #ffe07a;
+    top: -4rem;
+    left: -4rem;
+    animation: famigo-float 9s ease-in-out infinite;
+}
+
+.login-view::after {
+    width: 12rem;
+    height: 12rem;
+    background: #7affc9;
+    bottom: -3rem;
+    right: -3rem;
+    animation: famigo-float 11s ease-in-out infinite reverse;
+}
+
+.login-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 24rem;
+    padding: 2.5rem 2rem 2rem;
+    background: #ffffff;
+    border-radius: 1.75rem;
+    box-shadow: 0 1.5rem 3rem rgba(60, 40, 120, 0.28);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: famigo-card-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Maskottchen-Stern */
+.login-mascot {
+    font-size: 4rem;
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.25rem;
+    filter: drop-shadow(0 0.4rem 0.6rem rgba(255, 190, 40, 0.5));
+    transform-origin: 50% 80%;
+    animation: famigo-wobble 3.2s ease-in-out infinite;
+}
+
+.login-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.02em;
+    background: var(--famigo-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--lumo-primary-text-color); /* Fallback */
+}
+
+.login-subtitle {
+    margin: 0 0 0.75rem;
+    color: var(--lumo-secondary-text-color);
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.login-field {
+    width: 100%;
+    text-align: left;
+}
+
+.login-button {
+    width: 100%;
+    margin-top: 0.5rem;
+    font-weight: 700;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 0.5rem 1rem var(--lumo-primary-color-50pct);
+}
+
+.login-button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0.75rem 1.4rem var(--lumo-primary-color-50pct);
+}
+
+.login-button:active {
+    transform: translateY(0) scale(0.99);
+}
+
+.login-register-link {
+    margin-top: 1rem;
+    display: inline-block;
+    color: var(--lumo-primary-text-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.login-register-link:hover {
+    color: #ff6f9c;
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------
+   Animationen
+   ------------------------------------------------------------ */
+
+@keyframes famigo-card-in {
+    from { opacity: 0; transform: translateY(1.5rem) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes famigo-wobble {
+    0%, 100% { transform: rotate(-6deg) translateY(0); }
+    50%      { transform: rotate(6deg) translateY(-0.35rem); }
+}
+
+@keyframes famigo-float {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(1.5rem, 1.5rem); }
+}
+
+/* Barrierefreiheit: Bewegung reduzieren, wenn vom System gewünscht */
+@media (prefers-reduced-motion: reduce) {
+    .login-card,
+    .login-mascot,
+    .login-view::before,
+    .login-view::after {
+        animation: none;
+    }
+}
