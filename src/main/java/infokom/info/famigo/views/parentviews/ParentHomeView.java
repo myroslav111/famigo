@@ -1,6 +1,8 @@
 package infokom.info.famigo.views.parentviews;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -46,9 +48,20 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
 
 
         List<User> children = userService.findChildrenOfParent(currentParent);
-        for (User child : children) {
+        if (children.isEmpty()) {
+            add(new H2("Noch kein Kind war hinzufügt"));
+        }else{
+            for (User child : children) {
             add(createChildCard(child));
         }
+        }
+
+        Button rewardsManageBtn = new Button("Belohnungsverfahren");
+        rewardsManageBtn.addClickListener(e -> {
+            UI.getCurrent().navigate("manage/rewards");
+        });
+
+        add(rewardsManageBtn);
 
     }
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 @Route(value = "child/rewards", layout =  MainViewLayout.class)
 @PageTitle("Rewards")
-public class ChildRewardView extends VerticalLayout {
+public class ChildExecutionStatusView extends VerticalLayout {
     private final TaskService taskService;
     private final UserService userService;
 
@@ -28,7 +28,7 @@ public class ChildRewardView extends VerticalLayout {
     private VerticalLayout rewardApprovedLayout;
     private TabSheet taskTabSheet;
 
-    private ChildRewardView(TaskService taskService, UserService userService) {
+    private ChildExecutionStatusView(TaskService taskService, UserService userService) {
         this.taskService = taskService;
         this.userService = userService;
 

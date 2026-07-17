@@ -47,6 +47,7 @@ public class ParentTaskView extends VerticalLayout {
         setSizeFull();
         setWidthFull();
 
+
         tabSheet = new TabSheet();
         tabSheet.setWidthFull();
         tabSheet.setHeightFull();
@@ -87,12 +88,14 @@ public class ParentTaskView extends VerticalLayout {
 
         List<Task> tasks = taskService.findByAssignedToSortedByDueDate(selectedChild.getId());
 
+        System.out.println(tasks);
         if(!tasks.isEmpty()) {
             specialTaskLayout.add(new H4("Individuelle Aufgaben"));
             tasks.forEach(task -> specialTaskLayout.add(createTaskCard(task, true)));
         }
 
         List<TaskTemplate> templates = taskTemplateService.findAll();
+        System.out.println(templates);
         if(!templates.isEmpty()) {
             standardTaskLayout.add(new H4("Standardaufgaben"));
             templates.forEach(template -> standardTaskLayout.add(createTemplateCard(template)));

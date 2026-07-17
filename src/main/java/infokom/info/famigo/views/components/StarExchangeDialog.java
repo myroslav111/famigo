@@ -1,6 +1,10 @@
 package infokom.info.famigo.views.components;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -15,10 +19,12 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import infokom.info.famigo.entity.ChildRewardTransaction;
 import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.User;
+import infokom.info.famigo.entity.enums.RewardCategory;
 import infokom.info.famigo.service.ChildRewardTransactionService;
 import infokom.info.famigo.service.RewardOptionService;
 import infokom.info.famigo.service.UserService;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,29 +61,108 @@ public class StarExchangeDialog extends Dialog {
         div.setSizeFull();
         div.setWidthFull();
 
-        RadioButtonGroup<RewardOption> radioButtonGroup = new RadioButtonGroup<>();
-        radioButtonGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        radioButtonGroup.setLabel("Art von den Belohnungen");
+        System.out.println(category.getClass().getName());
+        System.out.println(RewardCategory.SELBSTWUNSCH.getClass().getName());
 
-        List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(category);
-        radioButtonGroup.setItems(rewardOptions);
-        radioButtonGroup.setValue(rewardOptions.get(0));
-        radioButtonGroup.setRenderer(new ComponentRenderer<>(rewardOption -> {
-            H3 title = new H3(rewardOption.getTitle());
-            Span cost = new Span("⭐: " + rewardOption.getCost());
-            Text description = new Text(rewardOption.getDescription());
+        if (category.equals(RewardCategory.SELBSTWUNSCH.toString())) {
+            div.add(desireChildForm(child));
+            return div;
+        }else{
+            RadioButtonGroup<RewardOption> radioButtonGroup = new RadioButtonGroup<>();
+            radioButtonGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+            radioButtonGroup.setLabel("Art von den Belohnungen");
 
-            return new Div(new VerticalLayout(title, cost, description));
+            List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(category);
+            radioButtonGroup.setItems(rewardOptions);
+            radioButtonGroup.setValue(rewardOptions.get(0));
+            radioButtonGroup.setRenderer(new ComponentRenderer<>(rewardOption -> {
+                VerticalLayout layout = new VerticalLayout();
+                if (!rewardOption.isActive()) {
+                    Span denied2 = new Span(new Span("Inactive"),
+                            createIcon(VaadinIcon.EXCLAMATION_CIRCLE_O));
+                    denied2.getElement().getThemeList().add("badge error");
+                    radioButtonGroup.getElement().setEnabled(false);
+                    layout.add(denied2);
+                }
 
-        }));
+                H3 title = new H3(rewardOption.getTitle());
+                Span cost = new Span("⭐: " + rewardOption.getCost());
+                Text description = new Text(rewardOption.getDescription());
 
-        div.add(new VerticalLayout(radioButtonGroup,
-                new Button("Umtauschen", event -> {
-                           executeExchangeStars(radioButtonGroup.getValue(), child);
-                    close();
-                    Notification.show("Du hast " + radioButtonGroup.getValue().getCost() + " ⭐ ausgegeben!");
-                })));
-        return div;
+                layout.add(title, cost, description);
+                return new Div(layout);
+
+            }));
+
+            div.add(new VerticalLayout(radioButtonGroup,
+                    new Button("Umtauschen", event -> {
+                        executeExchangeStars(radioButtonGroup.getValue(), child);
+                        close();
+                        Notification.show("Du hast " + radioButtonGroup.getValue().getCost() + " ⭐ ausgegeben!");
+                    })));
+            return div;
+        }
+
+    }
+
+    private Icon createIcon(VaadinIcon vaadinIcon) {
+        Icon icon = vaadinIcon.create();
+        icon.getStyle().set("padding", "var(--lumo-space-xs)");
+        return icon;
+    }
+
+    private VerticalLayout desireChildForm(User child){
+        VerticalLayout desireContentFormLayout = new VerticalLayout();
+
+        desireContentFormLayout.setSizeFull();
+        desireContentFormLayout.setSpacing(true);
+        desireContentFormLayout.setHeightFull();
+        desireContentFormLayout.setPadding(true);
+
+        TextArea textAreaDesire = new TextArea();
+        textAreaDesire.setLabel("Dein Wunsch");
+        textAreaDesire.setHelperText("Tippe hier deinen Wunsch ein");
+        textAreaDesire.setId(RewardCategory.SELBSTWUNSCH.toString());
+        textAreaDesire.setClearButtonVisible(true);
+        textAreaDesire.setSuffixComponent(new Span(":)"));
+        textAreaDesire.setWidthFull();
+
+        IntegerField costField = new IntegerField();
+        costField.setLabel("Wert");
+        costField.setHelperText("max 100 items");
+        costField.setRequiredIndicatorVisible(true);
+        costField.setMin(1);
+        costField.setMax(100);
+        costField.setValue(0);
+        costField.setStepButtonsVisible(true);
+
+        costField.setI18n(new IntegerField.IntegerFieldI18n()
+                .setRequiredErrorMessage("Field is required")
+                .setBadInputErrorMessage("Invalid number format")
+                .setMinErrorMessage("Quantity must be at least 1")
+                .setMaxErrorMessage("Maximum 10o items available"));
+
+
+        Button sent =  new Button("Senden");
+        sent.addClickListener(event -> {
+            RewardOption newOption = new RewardOption();
+            newOption.setCost(costField.getValue());
+            newOption.setDescription(textAreaDesire.getValue());
+            newOption.setTitle("Eigene Wunsch");
+            newOption.setCategory(RewardCategory.SELBSTWUNSCH);
+            newOption.setActive(false);
+            newOption.setCreateBy(child);
+
+            rewardOptionService.create(newOption);
+
+            close();
+
+            Notification.show("Wunsch wurde geschickt!");
+        });
+
+        desireContentFormLayout.add(textAreaDesire, costField, sent);
+
+        return desireContentFormLayout;
     }
 
     public void executeExchangeStars(RewardOption rewardOption, User child){
@@ -95,9 +180,6 @@ public class StarExchangeDialog extends Dialog {
         childRewardTransaction.setReward(rewardOption);
 
         childRewardTransactionService.save(childRewardTransaction);
-
-
     }
-
 
 }
