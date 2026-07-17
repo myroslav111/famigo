@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @Route(value = "rewards",  layout = MainViewLayout.class)
 @PageTitle("Reward")
-public class ParentRewardView extends VerticalLayout {
+public class ParentExecutionStatusView extends VerticalLayout {
 
     private final UserService userService;
     private final RewardService rewardService;
@@ -38,7 +38,7 @@ public class ParentRewardView extends VerticalLayout {
     private VerticalLayout taskApprovedLayout;
     private TabSheet tabSheet;
 
-    public ParentRewardView(UserService userService, RewardService rewardService,  TaskService taskService) {
+    public ParentExecutionStatusView(UserService userService, RewardService rewardService, TaskService taskService) {
         this.userService = userService;
         this.rewardService = rewardService;
         this.taskService = taskService;

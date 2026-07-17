@@ -35,11 +35,14 @@ public class RewardDataInitializer {
 
                         //  Selbstwunsch / Kreativ
                         new RewardOption("Eigener Wunsch", "Kind darf etwas selbst vorschlagen.", 0, RewardCategory.SELBSTWUNSCH),
-                        new RewardOption("Überraschung", "Eine geheime Box, die Eltern vorbereiten.", 12, RewardCategory.SELBSTWUNSCH),
 
                         //  Sterne als Währung
                         new RewardOption("1 € ins Sparschwein", "10 Sterne = 1 €", 10, RewardCategory.GELD),
-                        new RewardOption("50 Sterne Bonus", "Sammelpunkte für ein größeres Geschenk.", 50, RewardCategory.GELD)
+                        new RewardOption("50 Sterne Bonus", "Sammelpunkte für ein größeres Geschenk.", 50, RewardCategory.GELD),
+
+                        //  Special
+                        new RewardOption("Überraschung", "Eine geheime Box, die Eltern vorbereiten.", 12, RewardCategory.SPECIAL)
+
                 ));
             }
         };

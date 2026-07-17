@@ -13,4 +13,5 @@ public interface ChildRewardTransactionRepository extends JpaRepository<ChildRew
         List<ChildRewardTransaction> findByImplementedFalseAndChildIn(Set<User> children);
         Optional<ChildRewardTransaction> findById(Long id);
 
+
 }

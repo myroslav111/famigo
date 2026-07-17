@@ -169,14 +169,14 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
             taskButton.setText("Home");
             System.out.println(path);
         }else {
-            taskButton.setText("Task");
+            taskButton.setText("Aufgaben");
             System.out.println(path);
         }
 
         if(path.equals("rewards") || path.equals("child/rewards")) {
             rewardButton.setText("Home");
         }else {
-            rewardButton.setText("Reward");
+            rewardButton.setText("StatusF");
         }
 
         if(path.equals("child/stars-exchange")) {

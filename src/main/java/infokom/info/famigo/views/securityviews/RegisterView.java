@@ -1,8 +1,11 @@
 package infokom.info.famigo.views.securityviews;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -37,12 +40,25 @@ public class RegisterView extends VerticalLayout {
         roleField.setItemLabelGenerator(Enum::name);
 
         Button registerButton = new Button("Register");
+        registerButton.addClassName("login-button");
+        registerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
+        registerButton.addClickShortcut(Key.ENTER);
         registerButton.addClickListener(event -> handleRegistrationAndLogin(nameField, usernameField, passwordField, roleField));
 
         Anchor loginLink = new Anchor("/", "Schon registriert? Dann hopp, zurück zum Login!");
-        loginLink.getStyle().set("margin-top", "1em");
+//        loginLink.getStyle().set("margin-top", "1em");
+        loginLink.addClassName("login-register-link");
 
-        add(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
+        addClassName("login-view");
+        setSizeFull();
+        setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.CENTER);
+
+        Div card = new Div(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
+        card.addClassName("login-card");
+
+//        add(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
+        add(card);
 
     }
 

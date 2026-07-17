@@ -15,6 +15,10 @@ public class RewardOptionService {
         this.rewardOptionRepository = rewardOptionRepository;
     }
 
+    public void create(RewardOption rewardOption){
+        rewardOptionRepository.save(rewardOption);
+    }
+
     public List<RewardOption> getRewardOptions() {
         return rewardOptionRepository.findAll();
     }
