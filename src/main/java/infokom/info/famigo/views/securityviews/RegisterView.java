@@ -10,6 +10,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.User;
@@ -35,6 +36,8 @@ public class RegisterView extends VerticalLayout {
         TextField nameField = new TextField("Name");
         TextField usernameField = new TextField("Username");
         PasswordField passwordField = new PasswordField("Password");
+        PasswordField passwordRepeatField = new PasswordField("Passwort wiederholen");
+        passwordRepeatField.setErrorMessage("Die Passwörter stimmen nicht überein");
         ComboBox<UserRole> roleField = new ComboBox<>("Rolle");
         roleField.setItems(UserRole.PARENT, UserRole.CHILD);
         roleField.setItemLabelGenerator(Enum::name);
@@ -43,7 +46,23 @@ public class RegisterView extends VerticalLayout {
         registerButton.addClassName("login-button");
         registerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
         registerButton.addClickShortcut(Key.ENTER);
-        registerButton.addClickListener(event -> handleRegistrationAndLogin(nameField, usernameField, passwordField, roleField));
+        registerButton.addClickListener(event -> {
+            if (!passwordsMatch(passwordField, passwordRepeatField)) {
+                passwordRepeatField.setInvalid(true);
+                Notification.show("Die Passwörter stimmen nicht überein", 5000, Notification.Position.MIDDLE);
+                return;
+            }
+            passwordRepeatField.setInvalid(false);
+            handleRegistrationAndLogin(nameField, usernameField, passwordField, roleField);
+        });
+
+        // Fehleranzeige aktualisieren, sobald wieder getippt wird
+        passwordField.setValueChangeMode(ValueChangeMode.EAGER);
+        passwordRepeatField.setValueChangeMode(ValueChangeMode.EAGER);
+        passwordField.addValueChangeListener(event -> passwordRepeatField.setInvalid(
+                !passwordRepeatField.isEmpty() && !passwordsMatch(passwordField, passwordRepeatField)));
+        passwordRepeatField.addValueChangeListener(event -> passwordRepeatField.setInvalid(
+                !passwordRepeatField.isEmpty() && !passwordsMatch(passwordField, passwordRepeatField)));
 
         Anchor loginLink = new Anchor("/", "Schon registriert? Dann hopp, zurück zum Login!");
 //        loginLink.getStyle().set("margin-top", "1em");
@@ -54,12 +73,16 @@ public class RegisterView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        Div card = new Div(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
+        Div card = new Div(nameField, usernameField, passwordField, passwordRepeatField, roleField, registerButton, loginLink);
         card.addClassName("login-card");
 
 //        add(nameField, usernameField, passwordField, roleField, registerButton, loginLink);
         add(card);
 
+    }
+
+    private boolean passwordsMatch(PasswordField passwordField, PasswordField passwordRepeatField) {
+        return passwordField.getValue().equals(passwordRepeatField.getValue());
     }
 
     private void handleRegistrationAndLogin(TextField nameField, TextField usernameField, PasswordField passwordField, ComboBox<UserRole> roleField) {
