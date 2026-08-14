@@ -4,7 +4,9 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -45,38 +47,42 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
 
         User currentUser = sessionService.getCurrentUser();
 
+        addClassName("famigo-shell");
         setSizeFull();
         setPadding(false);
         setSpacing(false);
 
         // === Header ===
         HorizontalLayout header = new HorizontalLayout();
+        header.addClassName("famigo-header");
         header.setWidthFull();
-        header.setHeight("100px");
-        header.getStyle()
-                .set("border", "2px solid orange")
-                .set("background-color", "blue");
-        header.setJustifyContentMode(JustifyContentMode.CENTER);
+        header.setJustifyContentMode(JustifyContentMode.BETWEEN);
         header.setAlignItems(Alignment.CENTER);
 
-        // Optional Logo or Title
-        Image logo = new Image("images/logo.png", "Logo");
-        logo.setHeight("60px");
+        // Wortmarke mit Maskottchen – wie auf der Login-Seite
+        Span mascot = new Span("⭐");
+        mascot.addClassName("famigo-brand-mascot");
+        Span brand = new Span(mascot, new Span("famigo"));
+        brand.addClassName("famigo-brand");
 
-        Button logoutButton = new Button("Logout", e -> {
+        Button logoutButton = new Button("Logout", new Icon(VaadinIcon.SIGN_OUT), e -> {
             sessionService.logout();
             UI.getCurrent().navigate(LoginView.class);
         });
-        logoutButton.getStyle().setColor("black").setBackgroundColor("white");
+        logoutButton.addClassName("famigo-header-button");
 
-        header.add(logo, logoutButton, executeRequest(currentUser));
+        HorizontalLayout headerActions = new HorizontalLayout(executeRequest(currentUser), logoutButton);
+        headerActions.setAlignItems(Alignment.CENTER);
+
+        header.add(brand, headerActions);
 
         add(header);
 
         // Content
+        contentArea.addClassName("famigo-content");
         contentArea.setHeightFull();
         contentArea.getStyle()
-                .set("overfllow", "auto")
+                .set("overflow", "auto")
                 .set("flex-grow", "1")
                 .set("min-height", "0");
         contentArea.setWidthFull();
@@ -85,17 +91,18 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
 
         // === Footer ===
         HorizontalLayout footer = new HorizontalLayout();
+        footer.addClassName("famigo-footer");
         footer.setWidthFull();
-        footer.setHeight("60px");
-        footer.getStyle()
-                .set("border-top", "2px solid black")
-                .set("padding", "10px");
         footer.setJustifyContentMode(JustifyContentMode.BETWEEN);
         footer.setAlignItems(Alignment.CENTER);
 
         taskButton = new Button();
         rewardButton = new Button();
         addTaskButton = new Button();
+
+        taskButton.addClassName("famigo-nav-button");
+        rewardButton.addClassName("famigo-nav-button");
+        addTaskButton.addClassNames("famigo-nav-button", "famigo-nav-button-accent");
 
         taskButton.addClickListener(e -> {
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
