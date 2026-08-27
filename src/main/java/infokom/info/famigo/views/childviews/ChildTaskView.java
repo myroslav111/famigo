@@ -257,14 +257,14 @@ public class ChildTaskView extends VerticalLayout {
         List<Task> specialTasks = taskService.findStillValidTasksAndStatusPending(user.getId());
 
         if (!specialTasks.isEmpty()){
-            specialTasks.forEach(specialTask -> specialTasksLayout.add(createSpecialTaskCard(specialTask)));
+            specialTasks.reversed().forEach(specialTask -> specialTasksLayout.add(createSpecialTaskCard(specialTask)));
         }else{
             specialTasksLayout.add(createEmptyState("Gerade wartet keine Extra-Aufgabe auf dich."));
         }
 
         List<TaskTemplate> standardTasks = taskTemplateService.findAll();
         if (!standardTasks.isEmpty()){
-            standardTasks.forEach(standardTask -> standardTasksLayout.add(createStandardTaskCard(standardTask)));
+            standardTasks.reversed().forEach(standardTask -> standardTasksLayout.add(createStandardTaskCard(standardTask)));
         }else{
             standardTasksLayout.add(createEmptyState("Hier gibt es momentan keine Standardaufgaben."));
         }

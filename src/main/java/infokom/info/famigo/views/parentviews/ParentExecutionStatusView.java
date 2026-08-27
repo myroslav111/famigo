@@ -2,11 +2,12 @@ package infokom.info.famigo.views.parentviews;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -88,54 +89,158 @@ public class ParentExecutionStatusView extends VerticalLayout {
 
 
     private Component createRewardCard(Reward reward) {
-        Card card = new Card();
-        card.setWidthFull();
+        Div card = new Div();
+        card.addClassName("famigo-task-card");
 
-        VerticalLayout layout = new VerticalLayout(
-                new H5(reward.getTitle()),
-                new Span("Kosten " + reward.getStarCost() + " ⭐"),
-                new Paragraph(reward.getDescription()),
-//                new Span("Status: " + (reward.getTask().getStatus().equals(TaskStatus.PENDING) ? "⏳ Offen" : "✅ Eingelöst"))
-                new Span("Status: " + (getStatusTask(reward))),
-                new Span(reward.getTask().getTemplate() == null ? "Stammt aus speziellen Aufgaben" : "Stammt aus standarten Aufgaben")
+        card.getStyle()
+                .set("width", "100%")
+                .set("max-width", "500px")
+                .set("box-sizing", "border-box");
+
+        Div body = new Div();
+        body.addClassName("famigo-task-body");
+
+        // Titel
+        H3 title = new H3(reward.getTitle());
+        title.addClassName("famigo-task-title");
+        body.add(title);
+
+        // Beschreibung
+        if (reward.getDescription() != null && !reward.getDescription().isBlank()) {
+            Paragraph description = new Paragraph(reward.getDescription());
+            description.addClassName("famigo-task-desc");
+            body.add(description);
+        }
+
+        // Kosten-Chip
+        Span costChip = new Span(
+                "Kosten: " + reward.getStarCost() + " ⭐"
         );
+        costChip.addClassName("famigo-task-chip");
+        body.add(costChip);
+
+        // Status-Chip
+        Span statusChip = new Span(
+                "Status: " + getStatusTask(reward)
+        );
+        statusChip.addClassName("famigo-task-chip");
 
         if (reward.getTask().getStatus().equals(TaskStatus.DONE)) {
-            Button markRedeemed = new Button("Als eingelöst markieren", e -> {
-                Optional<Task> task = taskService.findById(reward.getTask().getId());
+            statusChip.addClassName("famigo-task-chip-urgent");
+        }
+
+        body.add(statusChip);
+
+        // Herkunft der Aufgabe
+        Span sourceChip = new Span(
+                reward.getTask().getTemplate() == null
+                        ? "Individuelle Aufgabe"
+                        : "Standardaufgabe"
+        );
+        sourceChip.addClassName("famigo-task-chip");
+        body.add(sourceChip);
+
+        // Aktionen
+        Div actions = new Div();
+        actions.addClassName("famigo-task-actions");
+
+        if (reward.getTask().getStatus().equals(TaskStatus.DONE)) {
+
+            Button markRedeemed = new Button(
+                    "Als eingelöst markieren",
+                    new Icon(VaadinIcon.CHECK)
+            );
+
+            markRedeemed.addClassName("famigo-task-done-button");
+            markRedeemed.addThemeVariants(
+                    ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_SMALL
+            );
+
+            markRedeemed.addClickListener(e -> {
+                Optional<Task> task = taskService.findById(
+                        reward.getTask().getId()
+                );
+
+                if (task.isEmpty()) {
+                    Notification.show("Aufgabe wurde nicht gefunden.");
+                    return;
+                }
+
                 task.get().setStatus(TaskStatus.APPROVED);
                 taskService.updateTask(task.get());
 
                 reward.setRedeemed(true);
                 rewardService.save(reward);
+
                 Notification.show("Belohnung als eingelöst markiert");
+
                 User currentChild = reward.getChild();
-                currentChild.setStars(currentChild.getStars() + reward.getStarCost());
+                currentChild.setStars(
+                        currentChild.getStars() + reward.getStarCost()
+                );
                 userService.updateUser(currentChild);
+
                 refreshRewards();
             });
 
-            Button markAsUndone = new Button("Ablehnen");
+            Button markAsUndone = new Button(
+                    "Ablehnen",
+                    new Icon(VaadinIcon.CLOSE)
+            );
+
+            markAsUndone.addThemeVariants(
+                    ButtonVariant.LUMO_TERTIARY,
+                    ButtonVariant.LUMO_SMALL
+            );
+
             markAsUndone.addClickListener(e -> {
-                if(reward.getTask().getTemplate() != null ){
+                if (reward.getTask().getTemplate() != null) {
+
                     rewardService.delete(reward.getId());
                     taskService.deleteById(reward.getTask().getId());
+
                     refreshRewards();
                     return;
-                }else{
-                    reward.setRedeemed(false);
-                    Optional<Task> task = taskService.findById(reward.getTask().getId());
+                }
+
+                reward.setRedeemed(false);
+
+                Optional<Task> task = taskService.findById(
+                        reward.getTask().getId()
+                );
+
+                if (task.isPresent()) {
                     task.get().setStatus(TaskStatus.PENDING);
                     taskService.updateTask(task.get());
-                    refreshRewards();
                 }
+
+                refreshRewards();
             });
 
-            layout.add(markRedeemed,  markAsUndone);
+            actions.add(markRedeemed, markAsUndone);
         }
 
-        card.add(layout);
+        body.add(actions);
+
+        // Sterne-Badge wie bei createTaskCard
+        card.add(
+                createStarsBadge(reward.getStarCost()),
+                body
+        );
+
         return card;
+    }
+
+    private Component createStarsBadge(int stars) {
+        Span count = new Span(String.valueOf(stars));
+        count.addClassName("famigo-task-stars-count");
+
+        Div badge = new Div(new Span("⭐"), count);
+        badge.addClassName("famigo-task-stars");
+        badge.getElement().setAttribute("title", stars + " Sterne");
+
+        return badge;
     }
 
     private String getStatusTask(Reward reward) {
@@ -160,7 +265,7 @@ public class ParentExecutionStatusView extends VerticalLayout {
         List<Reward> rewards = rewardService.findByChildId(selectedChild.getId());
 
 
-        rewards.forEach(reward -> {
+        rewards.reversed().forEach(reward -> {
             if(reward.getTask().getStatus().equals(TaskStatus.DONE)) {
                 taskDoneLayout.add(createRewardCard(reward));
             }else if(reward.getTask().getStatus().equals(TaskStatus.PENDING)) {

@@ -116,7 +116,7 @@ public class RegisterView extends VerticalLayout {
                         null
                 );
                 sessionService.login(user);
-                Notification.show("Register successful " + user.getUsername());
+//                Notification.show("Register successful " + user.getUsername());
 
                 if(user.getRole() ==  UserRole.PARENT){
                     getUI().ifPresent(ui -> ui.navigate("parent"));

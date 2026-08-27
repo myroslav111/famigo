@@ -69,7 +69,7 @@ public class LoginView extends VerticalLayout {
                     Notification.show("Unbekannte Rolle!");
                 }
 
-                Notification.show("Login successful " + user.getUsername());
+//                Notification.show("Login successful " + user.getUsername());
 
             } catch (Exception ex) {
                 Notification.show("Fehler: " + ex.getMessage());
