@@ -6,6 +6,7 @@ import infokom.info.famigo.repository.RewardOptionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RewardOptionService {
@@ -19,6 +20,18 @@ public class RewardOptionService {
         rewardOptionRepository.save(rewardOption);
     }
 
+    public void update(RewardOption rewardOption){
+        rewardOptionRepository.save(rewardOption);
+    }
+
+    public void delete(Long id) {
+        rewardOptionRepository.deleteById(id);
+    }
+
+    public Optional<RewardOption> findById(Long id) {
+        return rewardOptionRepository.findById(id);
+    }
+
     public List<RewardOption> getRewardOptions() {
         return rewardOptionRepository.findAll();
     }
@@ -26,9 +39,13 @@ public class RewardOptionService {
     public List<RewardOption> getRewardOptionByCategory(String category) {
         System.out.println("RewardOptionService -> getRewardOptionByCategory" + category);
 
-        return rewardOptionRepository.findByCategory(
+        return getRewardOptionByCategory(
                 RewardCategory.valueOf(category)
         );
+    }
+
+    public List<RewardOption> getRewardOptionByCategory(RewardCategory category) {
+        return rewardOptionRepository.findByCategory(category);
     }
 
 }
