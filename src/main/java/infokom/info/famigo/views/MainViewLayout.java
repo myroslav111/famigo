@@ -183,7 +183,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         if(path.equals("rewards") || path.equals("child/rewards")) {
             rewardButton.setText("\uD83C\uDFE0");
         }else {
-            rewardButton.setText("\uD83D\uDCCA ");
+            rewardButton.setText("\uD83D\uDCCA");
         }
 
         if (userService.getCurrentUser().getRole().equals(UserRole.PARENT)) {
