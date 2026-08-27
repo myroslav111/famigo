@@ -69,6 +69,7 @@ public class ManageRewards extends VerticalLayout {
         card.setId(rewardCategory);
 
         card.getElement().addEventListener("click", event -> {
+            System.out.println("card click");
             String category = RewardCategory.valueOf(rewardCategory).toString();
         });
 

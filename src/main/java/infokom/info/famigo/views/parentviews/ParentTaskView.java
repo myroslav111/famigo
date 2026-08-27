@@ -95,7 +95,7 @@ public class ParentTaskView extends VerticalLayout {
         }
 
         List<TaskTemplate> templates = taskTemplateService.findAll();
-        System.out.println(templates);
+        System.out.println("TaskTemplate" + templates);
         if(!templates.isEmpty()) {
             standardTaskLayout.add(new H4("Standardaufgaben"));
             templates.forEach(template -> standardTaskLayout.add(createTemplateCard(template)));

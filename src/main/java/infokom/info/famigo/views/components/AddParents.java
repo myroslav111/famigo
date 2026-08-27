@@ -18,7 +18,7 @@ public class AddParents extends Dialog {
     private final TextField parentIdField;
 
     public AddParents(Consumer<Long> onParentIdConfirmed) {
-        setHeaderTitle("Eltern hinzufügen");
+        setHeaderTitle("Eltern hinzufügen.");
 
         parentIdField = new TextField("Eltern-ID");
         parentIdField.setPlaceholder("z.B 123");

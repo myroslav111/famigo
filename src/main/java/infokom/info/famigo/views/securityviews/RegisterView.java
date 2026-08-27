@@ -65,7 +65,6 @@ public class RegisterView extends VerticalLayout {
                 !passwordRepeatField.isEmpty() && !passwordsMatch(passwordField, passwordRepeatField)));
 
         Anchor loginLink = new Anchor("/", "Schon registriert? Dann hopp, zurück zum Login!");
-//        loginLink.getStyle().set("margin-top", "1em");
         loginLink.addClassName("login-register-link");
 
         addClassName("login-view");

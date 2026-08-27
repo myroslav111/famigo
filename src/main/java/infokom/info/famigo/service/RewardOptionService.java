@@ -24,8 +24,11 @@ public class RewardOptionService {
     }
 
     public List<RewardOption> getRewardOptionByCategory(String category) {
-        return rewardOptionRepository.findAll().stream()
-                .filter(r -> r.getCategory().equals(RewardCategory.valueOf(category)))
-                .toList();
+        System.out.println("RewardOptionService -> getRewardOptionByCategory" + category);
+
+        return rewardOptionRepository.findByCategory(
+                RewardCategory.valueOf(category)
+        );
     }
+
 }
