@@ -1,15 +1,14 @@
 package infokom.info.famigo.views.components;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -53,7 +52,10 @@ public class StarExchangeDialog extends Dialog {
 
 
 
-        add(new H1("Dein Sternzustand ist: " + countOfStars), radioButtonSet(child));
+        H1 starBalance = new H1("Dein Sternzustand ist: " + countOfStars);
+        starBalance.addClassName("famigo-page-title");
+
+        add(starBalance, radioButtonSet(child));
     }
 
     private Div radioButtonSet(User child) {
@@ -70,36 +72,30 @@ public class StarExchangeDialog extends Dialog {
         }else{
             RadioButtonGroup<RewardOption> radioButtonGroup = new RadioButtonGroup<>();
             radioButtonGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+            radioButtonGroup.addClassName("famigo-reward-choices");
+            radioButtonGroup.setWidthFull();
             radioButtonGroup.setLabel("Art von den Belohnungen");
 
             List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(category);
             radioButtonGroup.setItems(rewardOptions);
             radioButtonGroup.setValue(rewardOptions.get(0));
             radioButtonGroup.setRenderer(new ComponentRenderer<>(rewardOption -> {
-                VerticalLayout layout = new VerticalLayout();
                 if (!rewardOption.isActive()) {
-                    Span denied2 = new Span(new Span("Inactive"),
-                            createIcon(VaadinIcon.EXCLAMATION_CIRCLE_O));
-                    denied2.getElement().getThemeList().add("badge error");
                     radioButtonGroup.getElement().setEnabled(false);
-                    layout.add(denied2);
                 }
-
-                H3 title = new H3(rewardOption.getTitle());
-                Span cost = new Span("⭐: " + rewardOption.getCost());
-                Text description = new Text(rewardOption.getDescription());
-
-                layout.add(title, cost, description);
-                return new Div(layout);
-
+                return RewardCards.rewardOptionCard(rewardOption);
             }));
 
-            div.add(new VerticalLayout(radioButtonGroup,
-                    new Button("Umtauschen", event -> {
-                        executeExchangeStars(radioButtonGroup.getValue(), child);
-                        close();
-                        Notification.show("Du hast " + radioButtonGroup.getValue().getCost() + " ⭐ ausgegeben!");
-                    })));
+            Button exchangeButton = new Button("Umtauschen", createIcon(VaadinIcon.STAR));
+            exchangeButton.addClassName("famigo-task-done-button");
+            exchangeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            exchangeButton.addClickListener(event -> {
+                executeExchangeStars(radioButtonGroup.getValue(), child);
+                close();
+                Notification.show("Du hast " + radioButtonGroup.getValue().getCost() + " ⭐ ausgegeben!");
+            });
+
+            div.add(new VerticalLayout(radioButtonGroup, exchangeButton));
             return div;
         }
 
@@ -143,7 +139,9 @@ public class StarExchangeDialog extends Dialog {
                 .setMaxErrorMessage("Maximum 10o items available"));
 
 
-        Button sent =  new Button("Senden");
+        Button sent =  new Button("Senden", createIcon(VaadinIcon.PAPERPLANE));
+        sent.addClassName("famigo-task-done-button");
+        sent.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         sent.addClickListener(event -> {
             RewardOption newOption = new RewardOption();
             newOption.setCost(costField.getValue());

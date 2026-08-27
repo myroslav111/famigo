@@ -1,6 +1,7 @@
 package infokom.info.famigo.repository;
 
 import infokom.info.famigo.entity.ChildRewardTransaction;
+import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,6 +13,8 @@ public interface ChildRewardTransactionRepository extends JpaRepository<ChildRew
     Optional<List<ChildRewardTransaction>> findByImplementedTrueAndViewedByChildFalseAndChild_Id(Long childId);
         List<ChildRewardTransaction> findByImplementedFalseAndChildIn(Set<User> children);
         Optional<ChildRewardTransaction> findById(Long id);
+
+        long countByReward_Id(Long rewardOptionId);
 
 
 }

@@ -29,6 +29,11 @@ public class ChildRewardTransactionService {
         return childRewardTransactionRepository.findByImplementedTrueAndViewedByChildFalseAndChild_Id(userId).get();
     }
 
+    /** Wie oft wurde diese Belohnung bereits eingetauscht? Verhindert das Loeschen benutzter Belohnungen. */
+    public long countByRewardOption(Long rewardOptionId) {
+        return childRewardTransactionRepository.countByReward_Id(rewardOptionId);
+    }
+
     public void updateStatusImplemented(boolean statusExecuteReward, Long childRewardTransactionId) {
         Optional<ChildRewardTransaction> childRewardTransaction = childRewardTransactionRepository.findById(childRewardTransactionId);
 

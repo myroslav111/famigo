@@ -700,3 +700,77 @@
         animation: none;
     }
 }
+
+/* ------------------------------------------------------------
+   Belohnungen (Kind + Eltern)
+   Die Karten nutzen dasselbe Markup wie die Aufgaben-Karten
+   (.famigo-task-card / -body / -title / -chip / -actions); hier stehen
+   nur die beiden belohnungsspezifischen Ergaenzungen.
+   ------------------------------------------------------------ */
+
+/* Kategorie-Symbol im runden Badge – gleiche Groesse wie .famigo-task-stars,
+   damit Aufgaben- und Belohnungs-Karten exakt dieselbe Silhouette haben. */
+.famigo-reward-icon {
+    flex: 0 0 auto;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--famigo-gradient);
+    font-size: 1.5rem;
+    line-height: 1;
+    box-shadow: 0 0.35rem 0.8rem rgba(60, 40, 120, 0.25);
+}
+
+/* In den Auswahllisten der Dialoge sitzt die Karte in einem Radio-Button:
+   dort ohne eigenen Schatten/Hover, weil die Auswahl selbst hervorhebt. */
+.famigo-reward-option {
+    width: 100%;
+    box-sizing: border-box;
+    background: transparent;
+    box-shadow: none;
+    padding: 0.4rem 0;
+    animation: none;
+}
+
+.famigo-reward-option:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.famigo-reward-choices vaadin-radio-button {
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Belohnungen verwalten (Eltern-Dialog)
+   ------------------------------------------------------------ */
+
+.famigo-reward-manage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--lumo-space-m);
+}
+
+/* Schmale Screens: eine Spalte – das Formular steht oben, die Liste
+   darunter und bleibt dort auf- und zuklappbar (default eingeklappt). */
+.famigo-reward-manage > * {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+/* Ab Tablet-/Desktop-Breite: zwei Spalten nebeneinander.
+   Gleicher Breakpoint wie das matchMedia in ManageRewardOptionDialog. */
+@media (min-width: 900px) {
+    .famigo-reward-manage > * {
+        flex: 1 1 0;
+    }
+}
+
+.famigo-reward-list {
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: var(--lumo-border-radius-m);
+}
