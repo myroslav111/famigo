@@ -173,23 +173,27 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
                 .getPath();
 
         if(path.equals("tasks") || path.equals("child/tasks")) {
-            taskButton.setText("Home");
+            taskButton.setText("\uD83C\uDFE0");
             System.out.println(path);
         }else {
-            taskButton.setText("Aufgaben");
+            taskButton.setText("\uD83D\uDCCB");
             System.out.println(path);
         }
 
         if(path.equals("rewards") || path.equals("child/rewards")) {
-            rewardButton.setText("Home");
+            rewardButton.setText("\uD83C\uDFE0");
         }else {
-            rewardButton.setText("StatusF");
+            rewardButton.setText("\uD83D\uDCCA");
         }
 
-        if(path.equals("child/stars-exchange")) {
-            addTaskButton.setText("Home");
-        }else{
-            addTaskButton.setText("+");
+        if (userService.getCurrentUser().getRole().equals(UserRole.PARENT)) {
+            addTaskButton.setText("✏️");
+        } else {
+            if (path.equals("child/stars-exchange")) {
+                addTaskButton.setText("\uD83C\uDFE0");
+            } else {
+                addTaskButton.setText("🎁");
+            }
         }
     }
 

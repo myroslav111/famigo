@@ -2,9 +2,12 @@ package infokom.info.famigo.views.childviews;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -21,6 +24,8 @@ import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
 import infokom.info.famigo.views.securityviews.LoginView;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Route(value = "child", layout =  MainViewLayout.class)
@@ -30,6 +35,9 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
     private final TaskService taskService;
     private final RewardService rewardService;
     private final UserService userService;
+
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private VerticalLayout currentTaskLayout;
 
@@ -65,35 +73,153 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         add(currentTaskLayout);
     }
 
+//    private Component createTaskChildCard(Task task) {
+//        Card  card = new Card();
+////        card.getStyle().set("border", "1px solid #ccc");
+////        card.setWidthFull();
+//        card.addClassName("famigo-task-card");
+//
+//        VerticalLayout content = new VerticalLayout();
+//        content.add(new H5(task.getTitle()));
+//        content.add(new Span("Sterne: " + task.getStarsReward()));
+//        content.add(new Span("Fällig bis zum Ende des Tages"));
+//
+//        Button detailsButton = new Button("Beschreibung");
+//        detailsButton.addClickListener(event -> {
+//            Dialog dialog = new Dialog();
+//            dialog.add(new Paragraph(task.getDescription()));
+//            dialog.setWidth("60%");
+//            dialog.open();
+//        });
+//
+//        Button markAsDoneButton = new Button("ist Erledigt");
+//        markAsDoneButton.addClickListener(event -> {
+//            task.setStatus(TaskStatus.DONE);
+//            taskService.updateTask(task);
+//
+//            refreshTasks();
+//        });
+//
+//        content.add(detailsButton, markAsDoneButton);
+//        card.add(content);
+//        return card;
+//    }
+
     private Component createTaskChildCard(Task task) {
-        Card  card = new Card();
-        card.getStyle().set("border", "1px solid #ccc");
-        card.setWidthFull();
+        Div card = new Div();
+        card.addClassName("famigo-task-card");
 
-        VerticalLayout content = new VerticalLayout();
-        content.add(new H5(task.getTitle()));
-        content.add(new Span("Sterne: " + task.getStarsReward()));
-        content.add(new Span("Fällig bis zum Ende des Tages"));
+        Div body = new Div();
+        body.addClassName("famigo-task-body");
 
-        Button detailsButton = new Button("Beschreibung");
-        detailsButton.addClickListener(event -> {
-            Dialog dialog = new Dialog();
-            dialog.add(new Paragraph(task.getDescription()));
-            dialog.setWidth("60%");
-            dialog.open();
-        });
+        H3 title = new H3(task.getTitle());
+        title.addClassName("famigo-task-title");
+        body.add(title);
 
-        Button markAsDoneButton = new Button("ist Erledigt");
-        markAsDoneButton.addClickListener(event -> {
+        if (task.getDescription() != null && !task.getDescription().isBlank()) {
+            Paragraph description = new Paragraph(task.getDescription());
+            description.addClassName("famigo-task-desc");
+            body.add(description);
+        }
+
+        body.add(createDueDateChip(task.getDueDate()));
+
+        Button detailsButton = createDetailsButton(
+                task.getTitle(),
+                task.getDescription()
+        );
+
+        Button markAsDoneButton = createDoneButton();
+        markAsDoneButton.addClickListener(e -> {
             task.setStatus(TaskStatus.DONE);
             taskService.updateTask(task);
 
             refreshTasks();
         });
 
-        content.add(detailsButton, markAsDoneButton);
-        card.add(content);
+        Div actions = new Div(detailsButton, markAsDoneButton);
+        actions.addClassName("famigo-task-actions");
+        body.add(actions);
+
+        card.add(createStarsBadge(task.getStarsReward()), body);
+
         return card;
+    }
+
+    private Component createStarsBadge(int stars) {
+        Span count = new Span(String.valueOf(stars));
+        count.addClassName("famigo-task-stars-count");
+
+        Div badge = new Div(new Span("⭐"), count);
+        badge.addClassName("famigo-task-stars");
+        badge.getElement().setAttribute("title", stars + " Sterne");
+
+        return badge;
+    }
+
+    private Component createDueDateChip(LocalDate dueDate) {
+        Span chip = new Span();
+        chip.addClassName("famigo-task-chip");
+
+        if (dueDate == null) {
+            chip.setText("Ohne Frist");
+        } else {
+            chip.setText("Fällig bis " + dueDate.format(DATE_FORMAT));
+
+            if (!dueDate.isAfter(LocalDate.now())) {
+                chip.addClassName("famigo-task-chip-urgent");
+            }
+        }
+
+        return chip;
+    }
+
+    private Button createDetailsButton(String title, String description) {
+        Button detailsButton = new Button("Details");
+        detailsButton.addClassName("famigo-task-details-button");
+        detailsButton.addThemeVariants(
+                ButtonVariant.LUMO_TERTIARY,
+                ButtonVariant.LUMO_SMALL
+        );
+
+        detailsButton.addClickListener(e -> {
+            Dialog dialog = new Dialog();
+            dialog.setHeaderTitle(title);
+
+            dialog.add(new Paragraph(
+                    description == null || description.isBlank()
+                            ? "Zu dieser Aufgabe gibt es keine weitere Beschreibung."
+                            : description
+            ));
+
+            Button closeButton = new Button(
+                    "Schließen",
+                    event -> dialog.close()
+            );
+            closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+            dialog.getFooter().add(closeButton);
+
+            dialog.setWidth("min(30rem, 90vw)");
+            dialog.open();
+        });
+
+        return detailsButton;
+    }
+
+    private Button createDoneButton() {
+        Button markAsDoneButton = new Button(
+                "Erledigt!",
+                new Icon(VaadinIcon.CHECK)
+        );
+
+        markAsDoneButton.addClassName("famigo-task-done-button");
+        markAsDoneButton.addThemeVariants(
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_SMALL
+        );
+
+        return markAsDoneButton;
     }
 
     private void refreshTasks() {

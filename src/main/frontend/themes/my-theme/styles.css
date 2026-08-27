@@ -216,7 +216,8 @@
 }
 
 .famigo-content {
-    background: var(--famigo-surface);
+    /*background: var(--famigo-surface);*/
+    background-color: transparent;
 }
 
 .famigo-footer {

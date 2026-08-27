@@ -112,7 +112,7 @@ public final class RewardCards {
             case ERLEBNIS -> "🌟";
             case SELBSTWUNSCH -> "💡";
             case GELD -> "💶";
-            case SPECIAL -> "✨";
+            case SPECIAL -> "\uD83E\uDD84";
         };
     }
 }
