@@ -63,11 +63,14 @@ public class ParentTaskView extends VerticalLayout {
 
 
 
+        // Kinder laden
         childrenSelector = new ComboBox<>("Kind auswählen");
         childrenSelector.setItemLabelGenerator(User::getName);
-        childrenSelector.setItems(userService.findChildrenOfCurrentParent());
-        childrenSelector.addValueChangeListener(e -> refreshTasks());
 
+        List<User> children = userService.findChildrenOfCurrentParent();
+        childrenSelector.setItems(children);
+
+        // Layouts zuerst initialisieren
         standardTaskLayout = new VerticalLayout();
         standardTaskLayout.setSpacing(true);
         standardTaskLayout.setWidthFull();
@@ -80,10 +83,18 @@ public class ParentTaskView extends VerticalLayout {
         specialTaskLayout.setHeightFull();
         specialTaskLayout.getStyle().set("overflow", "auto");
 
-        tabSheet.add("Specialaufgaben",  specialTaskLayout);
-        tabSheet.add("Standardaufgaben",  standardTaskLayout);
+        // Listener erst jetzt registrieren
+        childrenSelector.addValueChangeListener(e -> refreshTasks());
+
+        tabSheet.add("Specialaufgaben", specialTaskLayout);
+        tabSheet.add("Standardaufgaben", standardTaskLayout);
 
         add(childrenSelector, tabSheet);
+
+        //erstes Kind auswählen
+        if (!children.isEmpty()) {
+            childrenSelector.setValue(children.getFirst());
+        }
     }
 
 
