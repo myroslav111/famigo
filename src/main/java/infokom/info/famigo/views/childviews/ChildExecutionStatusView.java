@@ -5,6 +5,7 @@ import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.Task;
@@ -41,6 +42,7 @@ public class ChildExecutionStatusView extends VerticalLayout {
         setWidthFull();
 
         taskTabSheet = new TabSheet();
+        taskTabSheet.addClassName("famigo-tabsheet");
         taskTabSheet.setWidthFull();
         taskTabSheet.setHeightFull();
         taskTabSheet.getStyle().set("overflow", "auto");
@@ -59,8 +61,8 @@ public class ChildExecutionStatusView extends VerticalLayout {
 
         refreshTasks();
 
-        taskTabSheet.add("Task was approved", rewardApprovedLayout);
-        taskTabSheet.add("Tasks are pending", taskDoneLayout);
+        taskTabSheet.add("\uD83C\uDFC6 Geschafft!", rewardApprovedLayout);
+        taskTabSheet.add("⏳ Wird geprüft", taskDoneLayout);
 
         add(taskTabSheet);
     }
@@ -75,7 +77,11 @@ public class ChildExecutionStatusView extends VerticalLayout {
         if (!allDoneTasks.isEmpty()) {
             allDoneTasks.reversed().forEach(task -> taskDoneLayout.add(createTaskDoneCard(task)));
         }else{
-            taskDoneLayout.add("Aktuell ist nichts zur Bestätigung");
+            taskDoneLayout.add(createEmptyState(
+                    "⏳",
+                    "Alles gut!",
+                    "Aktuell gibt es nichts zu bestätigen. 😊"
+            ));
         }
 
         List<Task> allApprovedTask =  taskService.findTasksByAssignedToAndDueDateAndStatusApproved(currentUser.getId());
@@ -83,7 +89,11 @@ public class ChildExecutionStatusView extends VerticalLayout {
         if (!allApprovedTask.isEmpty()) {
             allApprovedTask.reversed().forEach(task -> rewardApprovedLayout.add(createTaskDoneCard(task)));
         }else{
-            rewardApprovedLayout.add("Aktuell ist keine bestätigte Aufgaben");
+            rewardApprovedLayout.add(createEmptyState(
+                    "🏆",
+                    "Noch keine Belohnungen!",
+                    "Erledige deine Aufgaben und sammle Sterne! ⭐"
+            ));
         }
     }
 
@@ -152,4 +162,29 @@ public class ChildExecutionStatusView extends VerticalLayout {
     }
 
 
+    private Component createEmptyState(
+            String icon,
+            String title,
+            String message
+    ) {
+        Div container = new Div();
+        container.addClassName("famigo-empty-state");
+
+        Span iconSpan = new Span(icon);
+        iconSpan.addClassName("famigo-empty-state-icon");
+
+        H2 titleElement = new H2(title);
+        titleElement.addClassName("famigo-empty-state-title");
+
+        Paragraph messageElement = new Paragraph(message);
+        messageElement.addClassName("famigo-empty-state-message");
+
+        container.add(
+                iconSpan,
+                titleElement,
+                messageElement
+        );
+
+        return container;
+    }
 }

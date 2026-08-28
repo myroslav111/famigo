@@ -21,7 +21,8 @@
     /* famigo-Markenfarben als eigene Variablen */
     --famigo-gradient: linear-gradient(135deg, #7f7bff 0%, #a86bff 55%, #ff8fb1 100%);
     --famigo-surface: #f5f3ff;          /* zarter Hintergrund fuer Inhaltsseiten */
-    --famigo-card-shadow: 0 0.75rem 1.75rem rgba(60, 40, 120, 0.14);
+    /*--famigo-card-shadow: 0 0.75rem 1.75rem rgba(60, 40, 120, 0.14);*/
+    --famigo-card-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     --famigo-card-shadow-hover: 0 1rem 2.25rem rgba(60, 40, 120, 0.22);
 }
 
@@ -446,6 +447,8 @@
 /* Tabs im Pill-Look der Marke */
 .famigo-tabsheet {
     background: transparent;
+    display: flex;
+    align-items: center;
 }
 
 .famigo-tabsheet vaadin-tab {
@@ -466,6 +469,7 @@
     grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
     gap: 1rem;
     width: 100%;
+    padding-bottom: 20px;
 }
 
 /* Leerer Zustand darf im Raster die ganze Breite nutzen */
@@ -774,4 +778,56 @@
 .famigo-reward-list {
     border: 1px solid var(--lumo-contrast-10pct);
     border-radius: var(--lumo-border-radius-m);
+}
+
+.famigo-child-stars-count {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.famigo-child-stars-icon {
+    font-size: 1.3rem;
+    margin-left: 0.25rem;
+}
+
+.famigo-empty-state {
+    width: 100%;
+    min-height: 250px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.famigo-empty-state-icon {
+    font-size: 4rem;
+
+    animation: famigo-float 2.5s ease-in-out infinite;
+}
+
+.famigo-empty-state-title {
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.famigo-empty-state-message {
+    margin-top: 0;
+    font-size: 1.1rem;
+    opacity: 0.75;
+}
+
+@keyframes famigo-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }

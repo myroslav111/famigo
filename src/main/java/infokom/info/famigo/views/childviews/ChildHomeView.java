@@ -41,7 +41,44 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
 
     private VerticalLayout currentTaskLayout;
 
-    public ChildHomeView(SessionService sessionService, TaskService taskService, RewardService rewardService, UserService userService) {
+//    public ChildHomeView(SessionService sessionService, TaskService taskService, RewardService rewardService, UserService userService) {
+//        this.sessionService = sessionService;
+//        this.taskService = taskService;
+//        this.rewardService = rewardService;
+//        this.userService = userService;
+//
+//        setSpacing(true);
+//        setWidthFull();
+//        setHeightFull();
+//        setPadding(true);
+//
+//        User child = sessionService.getCurrentUser();
+//        if(child == null) {
+//            add(new H1("Kein benutzer eingeloggt"));
+//            return;
+//        }
+//
+//        currentTaskLayout = new VerticalLayout();
+//        currentTaskLayout.setSpacing(true);
+//        currentTaskLayout.setWidthFull();
+//        currentTaskLayout.setHeightFull();
+//        currentTaskLayout.getStyle().set("overflow", "auto");
+//
+//        refreshTasks();
+//
+//        add(new H2("Willkommen " + child.getUsername() + "!"));
+//        add(new Paragraph("Du hast aktuell ⭐" + child.getStars() + " gesammelt!"));
+//
+//        add(new H4("Aktuell zur Erledigung "));
+//        add(currentTaskLayout);
+//    }
+
+    public ChildHomeView(
+            SessionService sessionService,
+            TaskService taskService,
+            RewardService rewardService,
+            UserService userService
+    ) {
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.rewardService = rewardService;
@@ -53,8 +90,9 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         setPadding(true);
 
         User child = sessionService.getCurrentUser();
-        if(child == null) {
-            add(new H1("Kein benutzer eingeloggt"));
+
+        if (child == null) {
+            add(new H1("😕 Kein Benutzer eingeloggt"));
             return;
         }
 
@@ -64,46 +102,50 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         currentTaskLayout.setHeightFull();
         currentTaskLayout.getStyle().set("overflow", "auto");
 
+        // Begrüßung
+        H1 welcome = new H1("👋 Hallo " + child.getUsername() + "!");
+        welcome.addClassName("famigo-child-welcome");
+
+        Paragraph welcomeText = new Paragraph(
+                "Schön, dass du da bist! 🌟"
+        );
+        welcomeText.addClassName("famigo-child-welcome-text");
+
+        // Sterne
+//        H3 starsTitle = new H3("⭐ Deine Sterne");
+//        Paragraph starsText = new Paragraph(
+//                "Du hast schon " + child.getStars() + " Sterne gesammelt!"
+//        );
+
+        Span starsCount = new Span(String.valueOf(child.getStars()) + " ⭐");
+        starsCount.addClassName("famigo-child-stars-count");
+
+        Span starsIcon = new Span("⭐");
+        starsIcon.addClassName("famigo-child-stars-icon");
+
+        Paragraph starsText = new Paragraph();
+        starsText.add("Du hast schon ");
+        starsText.add(starsCount);
+        starsText.add(starsIcon);
+        starsText.add(" gesammelt! 🎉");
+
+        Div starsBox = new Div(starsIcon, starsText);
+        starsBox.addClassName("famigo-child-stars-box");
+
+        // Aufgaben
+        H2 tasksTitle = new H2("🎯 Deine Aufgaben für heute");
+        tasksTitle.addClassName("famigo-child-section-title");
+
         refreshTasks();
 
-        add(new H2("Willkommen " + child.getUsername() + "!"));
-        add(new Paragraph("Du hast aktuell ⭐" + child.getStars() + " gesammelt!"));
-
-        add(new H4("Aktuell zur Erledigung "));
-        add(currentTaskLayout);
+        add(
+                welcome,
+                welcomeText,
+                starsBox,
+                tasksTitle,
+                currentTaskLayout
+        );
     }
-
-//    private Component createTaskChildCard(Task task) {
-//        Card  card = new Card();
-////        card.getStyle().set("border", "1px solid #ccc");
-////        card.setWidthFull();
-//        card.addClassName("famigo-task-card");
-//
-//        VerticalLayout content = new VerticalLayout();
-//        content.add(new H5(task.getTitle()));
-//        content.add(new Span("Sterne: " + task.getStarsReward()));
-//        content.add(new Span("Fällig bis zum Ende des Tages"));
-//
-//        Button detailsButton = new Button("Beschreibung");
-//        detailsButton.addClickListener(event -> {
-//            Dialog dialog = new Dialog();
-//            dialog.add(new Paragraph(task.getDescription()));
-//            dialog.setWidth("60%");
-//            dialog.open();
-//        });
-//
-//        Button markAsDoneButton = new Button("ist Erledigt");
-//        markAsDoneButton.addClickListener(event -> {
-//            task.setStatus(TaskStatus.DONE);
-//            taskService.updateTask(task);
-//
-//            refreshTasks();
-//        });
-//
-//        content.add(detailsButton, markAsDoneButton);
-//        card.add(content);
-//        return card;
-//    }
 
     private Component createTaskChildCard(Task task) {
         Div card = new Div();
@@ -207,9 +249,24 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         return detailsButton;
     }
 
+//    private Button createDoneButton() {
+//        Button markAsDoneButton = new Button(
+//                "Erledigt!",
+//                new Icon(VaadinIcon.CHECK)
+//        );
+//
+//        markAsDoneButton.addClassName("famigo-task-done-button");
+//        markAsDoneButton.addThemeVariants(
+//                ButtonVariant.LUMO_PRIMARY,
+//                ButtonVariant.LUMO_SMALL
+//        );
+//
+//        return markAsDoneButton;
+//    }
+
     private Button createDoneButton() {
         Button markAsDoneButton = new Button(
-                "Erledigt!",
+                "Geschafft! 🎉",
                 new Icon(VaadinIcon.CHECK)
         );
 
@@ -222,16 +279,50 @@ public class ChildHomeView extends VerticalLayout implements BeforeEnterObserver
         return markAsDoneButton;
     }
 
+//    private void refreshTasks() {
+//        currentTaskLayout.removeAll();
+//
+//        User child = sessionService.getCurrentUser();
+//        List<Task> currentTask = taskService.findTasksDueTodayForChild(child.getId());
+//
+//        if(!currentTask.isEmpty()) {
+//            currentTask.forEach(task -> currentTaskLayout.add(createTaskChildCard(task)));
+//        }else {
+//            currentTaskLayout.add(new Span("Aktuell ist keine individuelle Aufgaben zur Erledigung \uD83C\uDF89"));
+//        }
+//    }
+
     private void refreshTasks() {
         currentTaskLayout.removeAll();
 
         User child = sessionService.getCurrentUser();
-        List<Task> currentTask = taskService.findTasksDueTodayForChild(child.getId());
 
-        if(!currentTask.isEmpty()) {
-            currentTask.forEach(task -> currentTaskLayout.add(createTaskChildCard(task)));
-        }else {
-            currentTaskLayout.add(new Span("Aktuell ist keine individuelle Aufgaben zur Erledigung \uD83C\uDF89"));
+        List<Task> currentTask =
+                taskService.findTasksDueTodayForChild(child.getId());
+
+        if (!currentTask.isEmpty()) {
+
+            currentTask.forEach(task ->
+                    currentTaskLayout.add(createTaskChildCard(task))
+            );
+
+        } else {
+
+            H3 noTasksTitle = new H3("🎉 Alles geschafft!");
+
+            Paragraph noTasksText = new Paragraph(
+                    "Heute gibt es keine Aufgaben mehr. " +
+                            "Du kannst dich entspannen! ⭐"
+            );
+
+            Div emptyState = new Div(
+                    noTasksTitle,
+                    noTasksText
+            );
+
+            emptyState.addClassName("famigo-child-empty-state");
+
+            currentTaskLayout.add(emptyState);
         }
     }
 
