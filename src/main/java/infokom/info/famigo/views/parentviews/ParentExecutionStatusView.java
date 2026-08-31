@@ -45,9 +45,13 @@ public class ParentExecutionStatusView extends VerticalLayout {
         this.taskService = taskService;
 
         tabSheet = new TabSheet();
+        tabSheet.addClassName("famigo-tabsheet");
         tabSheet.setWidthFull();
         tabSheet.setHeightFull();
         tabSheet.getStyle().set("overflow", "auto");
+//        tabSheet.setWidthFull();
+//        tabSheet.setHeightFull();
+//        tabSheet.getStyle().set("overflow", "auto");
 
         setSpacing(true);
         setPadding(true);
@@ -56,7 +60,11 @@ public class ParentExecutionStatusView extends VerticalLayout {
 
         childSelect = new ComboBox<>("Kind auswählen");
         childSelect.setItemLabelGenerator(User::getName);
-        childSelect.setItems(userService.findChildrenOfCurrentParent());
+
+        List<User> children = userService.findChildrenOfCurrentParent();
+        childSelect.setItems(children);
+
+//        childSelect.setItems(userService.findChildrenOfCurrentParent());
         childSelect.addValueChangeListener(event -> refreshRewards());
 
         taskDoneLayout = new VerticalLayout();
@@ -85,6 +93,10 @@ public class ParentExecutionStatusView extends VerticalLayout {
 
 
         add(childSelect, tabSheet);
+
+        if (!children.isEmpty()) {
+            childSelect.setValue(children.getFirst());
+        }
     }
 
 

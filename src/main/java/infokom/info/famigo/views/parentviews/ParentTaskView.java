@@ -57,11 +57,10 @@ public class ParentTaskView extends VerticalLayout {
 
 
         tabSheet = new TabSheet();
+        tabSheet.addClassName("famigo-tabsheet");
         tabSheet.setWidthFull();
         tabSheet.setHeightFull();
         tabSheet.getStyle().set("overflow", "auto");
-
-
 
         // Kinder laden
         childrenSelector = new ComboBox<>("Kind auswählen");

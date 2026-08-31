@@ -31,6 +31,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
     private final TaskService taskService;
     private final RewardService rewardService;
     private ChildRewardTransactionService childRewardTransactionService;
+    private NotificationService notificationService;
 
     private Button taskButton;
     private Button rewardButton;
@@ -38,12 +39,13 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
     private NotificationPopup notificationPopup;
 
 
-    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService, ChildRewardTransactionService childRewardTransactionService) {
+    public MainViewLayout(SessionService sessionService, UserService userService, TaskService taskService,  RewardService rewardService, ChildRewardTransactionService childRewardTransactionService, NotificationService notificationService) {
         this.sessionService = sessionService;
         this.taskService = taskService;
         this.userService = userService;
         this.rewardService = rewardService;
         this.childRewardTransactionService = childRewardTransactionService;
+        this.notificationService = notificationService;
 
         User currentUser = sessionService.getCurrentUser();
 
@@ -75,6 +77,25 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         headerActions.setAlignItems(Alignment.CENTER);
 
         header.add(brand, headerActions);
+
+        UI ui = UI.getCurrent();
+
+        if (ui != null) {
+
+            notificationService.register(
+                    currentUser.getId(),
+                    ui,
+                    () -> {
+                        if (notificationPopup != null) {
+                            notificationPopup.refresh();
+                        }
+                    }
+            );
+
+            ui.addDetachListener(event ->
+                    notificationService.unregister(currentUser.getId())
+            );
+        }
 
         add(header);
 
@@ -197,16 +218,16 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         }
     }
 
-    public NotificationPopup executeRequest(User user){
+    public NotificationPopup executeRequest(User user) {
 
-        if (userService.getCurrentUser().getRole().equals(UserRole.PARENT)) {
-            notificationPopup = new NotificationPopup(user, childRewardTransactionService, sessionService);
-            return  notificationPopup;
-        }else {
-            notificationPopup = new NotificationPopup(user,  childRewardTransactionService, sessionService);
-            return  notificationPopup;
-        }
+        notificationPopup = new NotificationPopup(
+                user,
+                childRewardTransactionService,
+                sessionService,
+                notificationService
+        );
 
+        return notificationPopup;
     }
 
     @Override
