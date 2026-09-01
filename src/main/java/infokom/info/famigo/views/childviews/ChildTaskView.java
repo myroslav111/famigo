@@ -31,11 +31,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Route(value = "child/tasks",  layout = MainViewLayout.class)
+@Route(value = "child/tasks", layout = MainViewLayout.class)
 @PageTitle("Aufgabenübersicht")
 public class ChildTaskView extends VerticalLayout {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final TaskService taskService;
     private final UserService userService;
@@ -44,231 +45,733 @@ public class ChildTaskView extends VerticalLayout {
 
     private Div standardTasksLayout;
     private Div specialTasksLayout;
+
     private TabSheet tabSheet;
 
-    private ChildTaskView(TaskService taskService,  UserService userService,  TaskTemplateService taskTemplateService,  RewardService rewardService) {
+
+    public ChildTaskView(
+            TaskService taskService,
+            UserService userService,
+            TaskTemplateService taskTemplateService,
+            RewardService rewardService
+    ) {
+
         this.taskService = taskService;
         this.userService = userService;
         this.taskTemplateService = taskTemplateService;
         this.rewardService = rewardService;
 
+        // =========================================================
+        // Hauptlayout
+        // =========================================================
+
         addClassName("famigo-page");
+
         setSpacing(true);
         setPadding(true);
-        setSizeFull();
+
         setWidthFull();
+        setHeightFull();
 
-        H2 pageTitle = new H2("Deine Aufgaben ✅");
-        pageTitle.addClassName("famigo-page-title");
+        getStyle()
+                .set("box-sizing", "border-box")
+                .set("overflow", "hidden");
 
-        Paragraph pageSubtitle = new Paragraph("Erledige Aufgaben und sammle Sterne. Tippe auf „Erledigt!“, wenn du fertig bist.");
-        pageSubtitle.addClassName("famigo-page-subtitle");
+        // =========================================================
+        // Überschrift
+        // =========================================================
 
-        add(pageTitle, pageSubtitle);
+        H2 pageTitle =
+                new H2("Deine Aufgaben ✅");
 
-        standardTasksLayout = new Div();
-        standardTasksLayout.addClassName("famigo-task-grid");
+        pageTitle.addClassName(
+                "famigo-page-title"
+        );
 
-        specialTasksLayout = new Div();
-        specialTasksLayout.addClassName("famigo-task-grid");
+        Paragraph pageSubtitle =
+                new Paragraph(
+                        "Erledige Aufgaben und sammle Sterne. "
+                                + "Tippe auf „Erledigt!“, wenn du fertig bist."
+                );
 
-        refreshTasks();
+        pageSubtitle.addClassName(
+                "famigo-page-subtitle"
+        );
+
+        add(
+                pageTitle,
+                pageSubtitle
+        );
+
+        // =========================================================
+        // Aufgabenbereiche
+        // =========================================================
+
+        standardTasksLayout =
+                createScrollableTaskLayout();
+
+        specialTasksLayout =
+                createScrollableTaskLayout();
+
+        // =========================================================
+        // TabSheet
+        // =========================================================
 
         tabSheet = new TabSheet();
-        tabSheet.addClassName("famigo-tabsheet");
-        tabSheet.setWidthFull();
-        tabSheet.setHeightFull();
-        tabSheet.getStyle().set("overflow", "auto");
 
-        tabSheet.add("Standardaufgaben",  standardTasksLayout);
-        tabSheet.add("Extra-Aufgaben",  specialTasksLayout);
+        tabSheet.addClassName(
+                "famigo-tabsheet"
+        );
+
+        tabSheet.setWidthFull();
+        tabSheet.setHeight("100%");
+
+        tabSheet.getStyle()
+                .set("min-height", "0")
+                .set("overflow", "hidden")
+                .set("box-sizing", "border-box");
+
+        // =========================================================
+        // Tabs
+        // =========================================================
+
+        tabSheet.add(
+                "Standardaufgaben",
+                standardTasksLayout
+        );
+
+        tabSheet.add(
+                "Extra-Aufgaben",
+                specialTasksLayout
+        );
+
+        // =========================================================
+        // TabSheet hinzufügen
+        // =========================================================
 
         add(tabSheet);
+
+        // TabSheet nimmt den restlichen Platz ein
         expand(tabSheet);
+
+        // =========================================================
+        // Aufgaben laden
+        // =========================================================
+
+        refreshTasks();
     }
 
-    private Component createSpecialTaskCard(Task  task) {
+
+    /**
+     * Erstellt einen scrollbaren Aufgabenbereich.
+     *
+     * Die Tabs bleiben dadurch fest an ihrer Position.
+     * Nur die Aufgaben innerhalb des Tabs scrollen.
+     */
+    private Div createScrollableTaskLayout() {
+
+        Div layout = new Div();
+
+        layout.addClassName(
+                "famigo-task-grid"
+        );
+
+        layout.getStyle()
+                .set("width", "100%")
+                .set("height", "100%")
+                .set("overflow-y", "auto")
+                .set("overflow-x", "hidden")
+                .set("min-height", "0")
+                .set("box-sizing", "border-box")
+                .set("padding-bottom", "70px");
+
+        return layout;
+    }
+
+
+    // =============================================================
+    // Specialaufgabe
+    // =============================================================
+
+    private Component createSpecialTaskCard(
+            Task task
+    ) {
+
         Div card = new Div();
-        card.addClassName("famigo-task-card");
+
+        card.addClassName(
+                "famigo-task-card"
+        );
 
         Div body = new Div();
-        body.addClassName("famigo-task-body");
 
-        H3 title = new H3(task.getTitle());
-        title.addClassName("famigo-task-title");
+        body.addClassName(
+                "famigo-task-body"
+        );
+
+        // ---------------------------------------------------------
+        // Titel
+        // ---------------------------------------------------------
+
+        H3 title =
+                new H3(task.getTitle());
+
+        title.addClassName(
+                "famigo-task-title"
+        );
+
         body.add(title);
 
-        if (task.getDescription() != null && !task.getDescription().isBlank()) {
-            Paragraph description = new Paragraph(task.getDescription());
-            description.addClassName("famigo-task-desc");
+        // ---------------------------------------------------------
+        // Beschreibung
+        // ---------------------------------------------------------
+
+        if (task.getDescription() != null
+                && !task.getDescription().isBlank()) {
+
+            Paragraph description =
+                    new Paragraph(
+                            task.getDescription()
+                    );
+
+            description.addClassName(
+                    "famigo-task-desc"
+            );
+
             body.add(description);
         }
 
-        body.add(createDueDateChip(task.getDueDate()));
+        // ---------------------------------------------------------
+        // Fälligkeitsdatum
+        // ---------------------------------------------------------
 
-        Button detailsButton = createDetailsButton(task.getTitle(), task.getDescription());
+        body.add(
+                createDueDateChip(
+                        task.getDueDate()
+                )
+        );
 
-        Button markAsDoneButton = createDoneButton();
+        // ---------------------------------------------------------
+        // Details
+        // ---------------------------------------------------------
+
+        Button detailsButton =
+                createDetailsButton(
+                        task.getTitle(),
+                        task.getDescription()
+                );
+
+        // ---------------------------------------------------------
+        // Erledigt
+        // ---------------------------------------------------------
+
+        Button markAsDoneButton =
+                createDoneButton();
+
         markAsDoneButton.addClickListener(e -> {
-            task.setStatus(TaskStatus.DONE);
-            taskService.updateTask(task);
+
+            task.setStatus(
+                    TaskStatus.DONE
+            );
+
+            taskService.updateTask(
+                    task
+            );
+
             refreshTasks();
         });
 
-        Div actions = new Div(detailsButton, markAsDoneButton);
-        actions.addClassName("famigo-task-actions");
+        // ---------------------------------------------------------
+        // Aktionen
+        // ---------------------------------------------------------
+
+        Div actions =
+                new Div(
+                        detailsButton,
+                        markAsDoneButton
+                );
+
+        actions.addClassName(
+                "famigo-task-actions"
+        );
+
         body.add(actions);
 
-        card.add(createStarsBadge(task.getStarsReward()), body);
+        // ---------------------------------------------------------
+        // Card
+        // ---------------------------------------------------------
+
+        card.add(
+                createStarsBadge(
+                        task.getStarsReward()
+                ),
+                body
+        );
+
         return card;
     }
 
-    private Component createStandardTaskCard(TaskTemplate task) {
+
+    // =============================================================
+    // Standardaufgabe
+    // =============================================================
+
+    private Component createStandardTaskCard(
+            TaskTemplate task
+    ) {
+
         Div card = new Div();
-        card.addClassName("famigo-task-card");
+
+        card.addClassName(
+                "famigo-task-card"
+        );
 
         Div body = new Div();
-        body.addClassName("famigo-task-body");
 
-        H3 title = new H3(task.getTitle());
-        title.addClassName("famigo-task-title");
+        body.addClassName(
+                "famigo-task-body"
+        );
+
+        // ---------------------------------------------------------
+        // Titel
+        // ---------------------------------------------------------
+
+        H3 title =
+                new H3(task.getTitle());
+
+        title.addClassName(
+                "famigo-task-title"
+        );
+
         body.add(title);
 
-        if (task.getDescription() != null && !task.getDescription().isBlank()) {
-            Paragraph description = new Paragraph(task.getDescription());
-            description.addClassName("famigo-task-desc");
+        // ---------------------------------------------------------
+        // Beschreibung
+        // ---------------------------------------------------------
+
+        if (task.getDescription() != null
+                && !task.getDescription().isBlank()) {
+
+            Paragraph description =
+                    new Paragraph(
+                            task.getDescription()
+                    );
+
+            description.addClassName(
+                    "famigo-task-desc"
+            );
+
             body.add(description);
         }
 
-        Button detailsButton = createDetailsButton(task.getTitle(), task.getDescription());
+        // ---------------------------------------------------------
+        // Details
+        // ---------------------------------------------------------
 
-        Button markAsDoneButton = createDoneButton();
+        Button detailsButton =
+                createDetailsButton(
+                        task.getTitle(),
+                        task.getDescription()
+                );
+
+        // ---------------------------------------------------------
+        // Erledigt
+        // ---------------------------------------------------------
+
+        Button markAsDoneButton =
+                createDoneButton();
+
         markAsDoneButton.addClickListener(e -> {
 
-            Task doneTask = new Task();
-            doneTask.setTitle(task.getTitle());
-            doneTask.setStarsReward(task.getStarsReward());
-            doneTask.setDescription(task.getDescription());
-            doneTask.setDueDate(LocalDate.now());
-            doneTask.setStatus(TaskStatus.DONE);
-            doneTask.setAssignedTo(userService.getCurrentUser());
-            doneTask.setTemplate(task);
-            taskService.save(doneTask);
+            User currentUser =
+                    userService.getCurrentUser();
 
-            Reward reward = new Reward();
-            reward.setTitle(task.getTitle());
-            reward.setDescription(task.getDescription());
-            reward.setStarCost(task.getStarsReward());
-            reward.setChild(userService.getCurrentUser());
-            reward.setTask(doneTask);
+            Task doneTask =
+                    new Task();
 
-            rewardService.save(reward);
+            doneTask.setTitle(
+                    task.getTitle()
+            );
 
-            Notification.show("Erledigte Aufgabe wurde zum Elternteil geschickt.");
+            doneTask.setStarsReward(
+                    task.getStarsReward()
+            );
+
+            doneTask.setDescription(
+                    task.getDescription()
+            );
+
+            doneTask.setDueDate(
+                    LocalDate.now()
+            );
+
+            doneTask.setStatus(
+                    TaskStatus.DONE
+            );
+
+            doneTask.setAssignedTo(
+                    currentUser
+            );
+
+            doneTask.setTemplate(
+                    task
+            );
+
+            taskService.save(
+                    doneTask
+            );
+
+            // -----------------------------------------------------
+            // Reward erstellen
+            // -----------------------------------------------------
+
+            Reward reward =
+                    new Reward();
+
+            reward.setTitle(
+                    task.getTitle()
+            );
+
+            reward.setDescription(
+                    task.getDescription()
+            );
+
+            reward.setStarCost(
+                    task.getStarsReward()
+            );
+
+            reward.setChild(
+                    currentUser
+            );
+
+            reward.setTask(
+                    doneTask
+            );
+
+            rewardService.save(
+                    reward
+            );
+
+            Notification.show(
+                    "Erledigte Aufgabe wurde zum Elternteil geschickt."
+            );
+
             refreshTasks();
         });
 
-        Div actions = new Div(detailsButton, markAsDoneButton);
-        actions.addClassName("famigo-task-actions");
+        // ---------------------------------------------------------
+        // Aktionen
+        // ---------------------------------------------------------
+
+        Div actions =
+                new Div(
+                        detailsButton,
+                        markAsDoneButton
+                );
+
+        actions.addClassName(
+                "famigo-task-actions"
+        );
+
         body.add(actions);
 
-        card.add(createStarsBadge(task.getStarsReward()), body);
+        // ---------------------------------------------------------
+        // Card
+        // ---------------------------------------------------------
+
+        card.add(
+                createStarsBadge(
+                        task.getStarsReward()
+                ),
+                body
+        );
+
         return card;
     }
 
-    /** Sterne-Belohnung als runder Blickfang links auf der Karte. */
-    private Component createStarsBadge(int stars) {
-        Span count = new Span(String.valueOf(stars));
-        count.addClassName("famigo-task-stars-count");
 
-        Div badge = new Div(new Span("⭐"), count);
-        badge.addClassName("famigo-task-stars");
-        badge.getElement().setAttribute("title", stars + " Sterne");
+    // =============================================================
+    // Sterne
+    // =============================================================
+
+    private Component createStarsBadge(
+            int stars
+    ) {
+
+        Span count =
+                new Span(
+                        String.valueOf(stars)
+                );
+
+        count.addClassName(
+                "famigo-task-stars-count"
+        );
+
+        Div badge =
+                new Div(
+                        new Span("⭐"),
+                        count
+                );
+
+        badge.addClassName(
+                "famigo-task-stars"
+        );
+
+        badge.getElement().setAttribute(
+                "title",
+                stars + " Sterne"
+        );
+
         return badge;
     }
 
-    /** Frist-Chip; heute oder ueberfaellig wird rot hervorgehoben. */
-    private Component createDueDateChip(LocalDate dueDate) {
-        Span chip = new Span();
-        chip.addClassName("famigo-task-chip");
+
+    // =============================================================
+    // Fälligkeitsdatum
+    // =============================================================
+
+    private Component createDueDateChip(
+            LocalDate dueDate
+    ) {
+
+        Span chip =
+                new Span();
+
+        chip.addClassName(
+                "famigo-task-chip"
+        );
 
         if (dueDate == null) {
-            chip.setText("Ohne Frist");
+
+            chip.setText(
+                    "Ohne Frist"
+            );
+
         } else {
-            chip.setText("Fällig bis " + dueDate.format(DATE_FORMAT));
-            if (!dueDate.isAfter(LocalDate.now())) {
-                chip.addClassName("famigo-task-chip-urgent");
+
+            chip.setText(
+                    "Fällig bis "
+                            + dueDate.format(DATE_FORMAT)
+            );
+
+            if (!dueDate.isAfter(
+                    LocalDate.now()
+            )) {
+
+                chip.addClassName(
+                        "famigo-task-chip-urgent"
+                );
             }
         }
+
         return chip;
     }
 
-    private Button createDetailsButton(String title, String description) {
-        Button detailsButton = new Button("Details");
-        detailsButton.addClassName("famigo-task-details-button");
-        detailsButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+
+    // =============================================================
+    // Details
+    // =============================================================
+
+    private Button createDetailsButton(
+            String title,
+            String description
+    ) {
+
+        Button detailsButton =
+                new Button("Details");
+
+        detailsButton.addClassName(
+                "famigo-task-details-button"
+        );
+
+        detailsButton.addThemeVariants(
+                ButtonVariant.LUMO_TERTIARY,
+                ButtonVariant.LUMO_SMALL
+        );
+
         detailsButton.addClickListener(e -> {
-            Dialog dialog = new Dialog();
-            dialog.setHeaderTitle(title);
-            dialog.add(new Paragraph(description == null || description.isBlank()
-                    ? "Zu dieser Aufgabe gibt es keine weitere Beschreibung."
-                    : description));
 
-            Button closeButton = new Button("Schließen", event -> dialog.close());
-            closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            dialog.getFooter().add(closeButton);
+            Dialog dialog =
+                    new Dialog();
 
-            dialog.setWidth("min(30rem, 90vw)");
+            dialog.setHeaderTitle(
+                    title
+            );
+
+            dialog.add(
+                    new Paragraph(
+                            description == null
+                                    || description.isBlank()
+                                    ? "Zu dieser Aufgabe gibt es keine weitere Beschreibung."
+                                    : description
+                    )
+            );
+
+            Button closeButton =
+                    new Button(
+                            "Schließen",
+                            event -> dialog.close()
+                    );
+
+            closeButton.addThemeVariants(
+                    ButtonVariant.LUMO_TERTIARY
+            );
+
+            dialog.getFooter().add(
+                    closeButton
+            );
+
+            dialog.setWidth(
+                    "min(30rem, 90vw)"
+            );
+
             dialog.open();
         });
+
         return detailsButton;
     }
 
+
+    // =============================================================
+    // Erledigt Button
+    // =============================================================
+
     private Button createDoneButton() {
-        Button markAsDoneButton = new Button("Erledigt!", new Icon(VaadinIcon.CHECK));
-        markAsDoneButton.addClassName("famigo-task-done-button");
-        markAsDoneButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+
+        Button markAsDoneButton =
+                new Button(
+                        "Erledigt!",
+                        new Icon(VaadinIcon.CHECK)
+                );
+
+        markAsDoneButton.addClassName(
+                "famigo-task-done-button"
+        );
+
+        markAsDoneButton.addThemeVariants(
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_SMALL
+        );
+
         return markAsDoneButton;
     }
 
-    /** Freundlicher Hinweis, wenn ein Tab keine Aufgaben enthaelt. */
-    private Component createEmptyState(String text) {
-        Div card = new Div();
-        card.addClassName("famigo-empty-card");
 
-        Span mascot = new Span("🎉");
-        mascot.addClassName("famigo-empty-mascot");
+    // =============================================================
+    // Empty State
+    // =============================================================
 
-        H3 title = new H3("Alles erledigt!");
-        title.addClassName("famigo-empty-title");
+    private Component createEmptyState(
+            String text
+    ) {
 
-        Paragraph hint = new Paragraph(text);
-        hint.addClassName("famigo-empty-text");
+        Div card =
+                new Div();
 
-        card.add(mascot, title, hint);
+        card.addClassName(
+                "famigo-empty-card"
+        );
+
+        Span mascot =
+                new Span("🎉");
+
+        mascot.addClassName(
+                "famigo-empty-mascot"
+        );
+
+        H3 title =
+                new H3("Alles erledigt!");
+
+        title.addClassName(
+                "famigo-empty-title"
+        );
+
+        Paragraph hint =
+                new Paragraph(text);
+
+        hint.addClassName(
+                "famigo-empty-text"
+        );
+
+        card.add(
+                mascot,
+                title,
+                hint
+        );
+
         return card;
     }
 
-    private void refreshTasks(){
+
+    // =============================================================
+    // Aufgaben aktualisieren
+    // =============================================================
+
+    private void refreshTasks() {
+
         standardTasksLayout.removeAll();
         specialTasksLayout.removeAll();
 
-        User user = userService.getCurrentUser();
-        List<Task> specialTasks = taskService.findStillValidTasksAndStatusPending(user.getId());
+        User user =
+                userService.getCurrentUser();
 
-        if (!specialTasks.isEmpty()){
-            specialTasks.reversed().forEach(specialTask -> specialTasksLayout.add(createSpecialTaskCard(specialTask)));
-        }else{
-            specialTasksLayout.add(createEmptyState("Gerade wartet keine Extra-Aufgabe auf dich."));
+        // ---------------------------------------------------------
+        // Extra-Aufgaben
+        // ---------------------------------------------------------
+
+        List<Task> specialTasks =
+                taskService.findStillValidTasksAndStatusPending(
+                        user.getId()
+                );
+
+        if (!specialTasks.isEmpty()) {
+
+            specialTasks.reversed()
+                    .forEach(
+                            specialTask ->
+                                    specialTasksLayout.add(
+                                            createSpecialTaskCard(
+                                                    specialTask
+                                            )
+                                    )
+                    );
+
+        } else {
+
+            specialTasksLayout.add(
+                    createEmptyState(
+                            "Gerade wartet keine Extra-Aufgabe auf dich."
+                    )
+            );
         }
 
-        List<TaskTemplate> standardTasks = taskTemplateService.findAll();
-        if (!standardTasks.isEmpty()){
-            standardTasks.reversed().forEach(standardTask -> standardTasksLayout.add(createStandardTaskCard(standardTask)));
-        }else{
-            standardTasksLayout.add(createEmptyState("Hier gibt es momentan keine Standardaufgaben."));
-        }
+        // ---------------------------------------------------------
+        // Standardaufgaben
+        // ---------------------------------------------------------
 
+        List<TaskTemplate> standardTasks =
+                taskTemplateService.findAll();
+
+        if (!standardTasks.isEmpty()) {
+
+            standardTasks.reversed()
+                    .forEach(
+                            standardTask ->
+                                    standardTasksLayout.add(
+                                            createStandardTaskCard(
+                                                    standardTask
+                                            )
+                                    )
+                    );
+
+        } else {
+
+            standardTasksLayout.add(
+                    createEmptyState(
+                            "Hier gibt es momentan keine Standardaufgaben."
+                    )
+            );
+        }
     }
-
 }
+

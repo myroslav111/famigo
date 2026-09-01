@@ -3,14 +3,12 @@ package infokom.info.famigo.views.parentviews;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.PageTitle;
@@ -28,9 +26,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Route(value = "tasks",layout = MainViewLayout.class)
+@Route(value = "tasks", layout = MainViewLayout.class)
 @PageTitle("Aufgabenübersicht")
 public class ParentTaskView extends VerticalLayout {
+
     private final UserService userService;
     private final TaskService taskService;
     private final TaskTemplateService taskTemplateService;
@@ -39,91 +38,198 @@ public class ParentTaskView extends VerticalLayout {
 
     private VerticalLayout standardTaskLayout;
     private VerticalLayout specialTaskLayout;
+
     private TabSheet tabSheet;
 
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 
-    private ParentTaskView(UserService userService, TaskService taskService, TaskTemplateService taskTemplateService) {
+    public ParentTaskView(
+            UserService userService,
+            TaskService taskService,
+            TaskTemplateService taskTemplateService
+    ) {
         this.userService = userService;
         this.taskService = taskService;
         this.taskTemplateService = taskTemplateService;
 
+        // =========================================================
+        // Hauptlayout
+        // =========================================================
+
         setSpacing(true);
         setPadding(true);
-        setSizeFull();
+
         setWidthFull();
+        setHeightFull();
 
+        getStyle()
+                .set("box-sizing", "border-box")
+                .set("overflow", "hidden");
 
-        tabSheet = new TabSheet();
-        tabSheet.addClassName("famigo-tabsheet");
-        tabSheet.setWidthFull();
-        tabSheet.setHeightFull();
-        tabSheet.getStyle().set("overflow", "auto");
+        // =========================================================
+        // Kind auswählen
+        // =========================================================
 
-        // Kinder laden
         childrenSelector = new ComboBox<>("Kind auswählen");
-        childrenSelector.setItemLabelGenerator(User::getName);
 
-        List<User> children = userService.findChildrenOfCurrentParent();
+        childrenSelector.setItemLabelGenerator(User::getName);
+        childrenSelector.setWidthFull();
+
+        List<User> children =
+                userService.findChildrenOfCurrentParent();
+
         childrenSelector.setItems(children);
 
-        // Layouts zuerst initialisieren
-        standardTaskLayout = new VerticalLayout();
-        standardTaskLayout.setSpacing(true);
-        standardTaskLayout.setWidthFull();
-        standardTaskLayout.setHeightFull();
-        standardTaskLayout.getStyle().set("overflow", "auto");
+        childrenSelector.addValueChangeListener(
+                event -> refreshTasks()
+        );
 
-        specialTaskLayout = new VerticalLayout();
-        specialTaskLayout.setSpacing(true);
-        specialTaskLayout.setWidthFull();
-        specialTaskLayout.setHeightFull();
-        specialTaskLayout.getStyle().set("overflow", "auto");
+        // =========================================================
+        // Scrollbarer Content
+        // =========================================================
 
-        // Listener erst jetzt registrieren
-        childrenSelector.addValueChangeListener(e -> refreshTasks());
+        specialTaskLayout = createScrollableLayout();
+        standardTaskLayout = createScrollableLayout();
 
-        tabSheet.add("Specialaufgaben", specialTaskLayout);
-        tabSheet.add("Standardaufgaben", standardTaskLayout);
+        // =========================================================
+        // TabSheet
+        // =========================================================
 
-        add(childrenSelector, tabSheet);
+        tabSheet = new TabSheet();
 
-        //erstes Kind auswählen
+        tabSheet.addClassName("famigo-tabsheet");
+
+        tabSheet.setWidthFull();
+        tabSheet.setHeight("100%");
+
+        tabSheet.getStyle()
+                .set("min-height", "0")
+                .set("overflow", "hidden")
+                .set("box-sizing", "border-box");
+
+        // =========================================================
+        // Tabs
+        // =========================================================
+
+        tabSheet.add(
+                "Specialaufgaben",
+                specialTaskLayout
+        );
+
+        tabSheet.add(
+                "Standardaufgaben",
+                standardTaskLayout
+        );
+
+        // =========================================================
+        // Layout zusammensetzen
+        // =========================================================
+
+        add(
+                childrenSelector,
+                tabSheet
+        );
+
+        // TabSheet nimmt den restlichen Platz ein
+        expand(tabSheet);
+
+        // =========================================================
+        // Erstes Kind automatisch auswählen
+        // =========================================================
+
         if (!children.isEmpty()) {
-            childrenSelector.setValue(children.getFirst());
+            childrenSelector.setValue(
+                    children.getFirst()
+            );
         }
+    }
+
+
+    /**
+     * Erstellt einen Tab-Inhalt,
+     * der unabhängig vom TabSheet scrollbar ist.
+     */
+    private VerticalLayout createScrollableLayout() {
+
+        VerticalLayout layout = new VerticalLayout();
+
+        layout.setSpacing(true);
+        layout.setPadding(true);
+
+        layout.setWidthFull();
+        layout.setHeightFull();
+
+        layout.getStyle()
+                .set("overflow-y", "auto")
+                .set("overflow-x", "hidden")
+                .set("min-height", "0")
+                .set("box-sizing", "border-box")
+                .set("padding-bottom", "70px");
+
+        return layout;
     }
 
 
     public void refreshTasks() {
+
         specialTaskLayout.removeAll();
         standardTaskLayout.removeAll();
 
-        User selectedChild = childrenSelector.getValue();
-        if (selectedChild == null) return;
+        User selectedChild =
+                childrenSelector.getValue();
 
-        List<Task> tasks = taskService.findByAssignedToSortedByDueDate(selectedChild.getId());
-
-        System.out.println(tasks);
-        if(!tasks.isEmpty()) {
-            specialTaskLayout.add(new H4("Individuelle Aufgaben"));
-            tasks.reversed().forEach(task -> specialTaskLayout.add(createTaskCard(task, true)));
+        if (selectedChild == null) {
+            return;
         }
 
-        List<TaskTemplate> templates = taskTemplateService.findAll();
-        System.out.println("TaskTemplate" + templates);
-        if(!templates.isEmpty()) {
-            standardTaskLayout.add(new H4("Standardaufgaben"));
-            templates.reversed().forEach(template -> standardTaskLayout.add(createTemplateCard(template)));
+        // =========================================================
+        // Specialaufgaben
+        // =========================================================
+
+        List<Task> tasks =
+                taskService.findByAssignedToSortedByDueDate(
+                        selectedChild.getId()
+                );
+
+        if (!tasks.isEmpty()) {
+
+            tasks.reversed().forEach(task ->
+                    specialTaskLayout.add(
+                            createTaskCard(task, true)
+                    )
+            );
         }
 
+        // =========================================================
+        // Standardaufgaben
+        // =========================================================
+
+        List<TaskTemplate> templates =
+                taskTemplateService.findAll();
+
+        if (!templates.isEmpty()) {
+
+            templates.reversed().forEach(template ->
+                    standardTaskLayout.add(
+                            createTemplateCard(template)
+                    )
+            );
+        }
     }
 
-    private Component createTaskCard(Task task, boolean flags) {
+
+    private Component createTaskCard(
+            Task task,
+            boolean flags
+    ) {
+
         Div card = new Div();
-        card.addClassName("famigo-task-card");
+
+        card.addClassName(
+                "famigo-task-card"
+        );
 
         card.getStyle()
                 .set("width", "100%")
@@ -131,43 +237,115 @@ public class ParentTaskView extends VerticalLayout {
                 .set("box-sizing", "border-box");
 
         Div body = new Div();
-        body.addClassName("famigo-task-body");
 
-        H3 title = new H3(task.getTitle());
-        title.addClassName("famigo-task-title");
+        body.addClassName(
+                "famigo-task-body"
+        );
+
+        // =========================================================
+        // Titel
+        // =========================================================
+
+        H3 title =
+                new H3(task.getTitle());
+
+        title.addClassName(
+                "famigo-task-title"
+        );
+
         body.add(title);
 
-        if (task.getDescription() != null && !task.getDescription().isBlank()) {
-            Paragraph description = new Paragraph(task.getDescription());
-            description.addClassName("famigo-task-desc");
+        // =========================================================
+        // Beschreibung
+        // =========================================================
+
+        if (task.getDescription() != null
+                && !task.getDescription().isBlank()) {
+
+            Paragraph description =
+                    new Paragraph(
+                            task.getDescription()
+                    );
+
+            description.addClassName(
+                    "famigo-task-desc"
+            );
+
             body.add(description);
         }
 
-        body.add(createDueDateChip(task.getDueDate()));
+        // =========================================================
+        // Fälligkeitsdatum
+        // =========================================================
+
+        body.add(
+                createDueDateChip(
+                        task.getDueDate()
+                )
+        );
+
+        // =========================================================
+        // Status
+        // =========================================================
 
         if (flags) {
-            Span status = new Span("Status: " + task.getStatus());
-            status.addClassName("famigo-task-chip");
+
+            Span status =
+                    new Span(
+                            "Status: "
+                                    + task.getStatus()
+                    );
+
+            status.addClassName(
+                    "famigo-task-chip"
+            );
+
             body.add(status);
         }
 
-        Button detailsButton = createDetailsButton(
-                task.getTitle(),
-                task.getDescription()
+        // =========================================================
+        // Details
+        // =========================================================
+
+        Button detailsButton =
+                createDetailsButton(
+                        task.getTitle(),
+                        task.getDescription()
+                );
+
+        Div actions =
+                new Div(detailsButton);
+
+        actions.addClassName(
+                "famigo-task-actions"
         );
 
-        Div actions = new Div(detailsButton);
-        actions.addClassName("famigo-task-actions");
         body.add(actions);
 
-        card.add(createStarsBadge(task.getStarsReward()), body);
+        // =========================================================
+        // Card
+        // =========================================================
+
+        card.add(
+                createStarsBadge(
+                        task.getStarsReward()
+                ),
+                body
+        );
 
         return card;
     }
 
-    private Component createTemplateCard(TaskTemplate template) {
+
+    private Component createTemplateCard(
+            TaskTemplate template
+    ) {
+
         Div card = new Div();
-        card.addClassName("famigo-task-card");
+
+        card.addClassName(
+                "famigo-task-card"
+        );
 
         card.getStyle()
                 .set("width", "100%")
@@ -175,123 +353,283 @@ public class ParentTaskView extends VerticalLayout {
                 .set("box-sizing", "border-box");
 
         Div body = new Div();
-        body.addClassName("famigo-task-body");
 
-        H3 title = new H3(template.getTitle());
-        title.addClassName("famigo-task-title");
+        body.addClassName(
+                "famigo-task-body"
+        );
+
+        // =========================================================
+        // Titel
+        // =========================================================
+
+        H3 title =
+                new H3(template.getTitle());
+
+        title.addClassName(
+                "famigo-task-title"
+        );
+
         body.add(title);
 
-        if (template.getDescription() != null && !template.getDescription().isBlank()) {
-            Paragraph description = new Paragraph(template.getDescription());
-            description.addClassName("famigo-task-desc");
+        // =========================================================
+        // Beschreibung
+        // =========================================================
+
+        if (template.getDescription() != null
+                && !template.getDescription().isBlank()) {
+
+            Paragraph description =
+                    new Paragraph(
+                            template.getDescription()
+                    );
+
+            description.addClassName(
+                    "famigo-task-desc"
+            );
+
             body.add(description);
         }
 
-        Button detailsButton = createDetailsButton(
-                template.getTitle(),
-                template.getDescription()
+        // =========================================================
+        // Details
+        // =========================================================
+
+        Button detailsButton =
+                createDetailsButton(
+                        template.getTitle(),
+                        template.getDescription()
+                );
+
+        // =========================================================
+        // Zuweisen
+        // =========================================================
+
+        Button assignedButton =
+                new Button(
+                        "Zuweisen",
+                        new Icon(VaadinIcon.PLUS)
+                );
+
+        assignedButton.addClassName(
+                "famigo-task-done-button"
         );
 
-        Button assignedButton = new Button(
-                "Zuweisen",
-                new Icon(VaadinIcon.PLUS)
-        );
-        assignedButton.addClassName("famigo-task-done-button");
         assignedButton.addThemeVariants(
                 ButtonVariant.LUMO_PRIMARY,
                 ButtonVariant.LUMO_SMALL
         );
 
         assignedButton.addClickListener(e -> {
-            User selectedChild = childrenSelector.getValue();
+
+            User selectedChild =
+                    childrenSelector.getValue();
 
             if (selectedChild == null) {
-                Notification.show("Bitte zuerst ein Kind auswählen.");
+
+                Notification.show(
+                        "Bitte zuerst ein Kind auswählen."
+                );
+
                 return;
             }
 
             Task task = new Task();
-            task.setTitle(template.getTitle());
-            task.setStarsReward(template.getStarsReward());
-            task.setDescription(template.getDescription());
-            task.setStatus(TaskStatus.PENDING);
-            task.setAssignedTo(selectedChild);
-            task.setCreatedBy(userService.getCurrentUser());
-            task.setTemplate(template);
+
+            task.setTitle(
+                    template.getTitle()
+            );
+
+            task.setStarsReward(
+                    template.getStarsReward()
+            );
+
+            task.setDescription(
+                    template.getDescription()
+            );
+
+            task.setStatus(
+                    TaskStatus.PENDING
+            );
+
+            task.setAssignedTo(
+                    selectedChild
+            );
+
+            task.setCreatedBy(
+                    userService.getCurrentUser()
+            );
+
+            task.setTemplate(
+                    template
+            );
 
             taskService.save(task);
 
-            Notification.show("Aufgabe wurde zugewiesen.");
+            Notification.show(
+                    "Aufgabe wurde zugewiesen."
+            );
+
             refreshTasks();
         });
 
-        Div actions = new Div(detailsButton);
-        actions.addClassName("famigo-task-actions");
+        // =========================================================
+        // Aktionen
+        // =========================================================
+
+        Div actions =
+                new Div(
+                        detailsButton,
+                        assignedButton
+                );
+
+        actions.addClassName(
+                "famigo-task-actions"
+        );
+
         body.add(actions);
 
-        card.add(createStarsBadge(template.getStarsReward()), body);
+        // =========================================================
+        // Card
+        // =========================================================
+
+        card.add(
+                createStarsBadge(
+                        template.getStarsReward()
+                ),
+                body
+        );
 
         return card;
     }
 
-    private Component createStarsBadge(int stars) {
-        Span count = new Span(String.valueOf(stars));
-        count.addClassName("famigo-task-stars-count");
 
-        Div badge = new Div(new Span("⭐"), count);
-        badge.addClassName("famigo-task-stars");
-        badge.getElement().setAttribute("title", stars + " Sterne");
+    private Component createStarsBadge(
+            int stars
+    ) {
+
+        Span count =
+                new Span(
+                        String.valueOf(stars)
+                );
+
+        count.addClassName(
+                "famigo-task-stars-count"
+        );
+
+        Div badge =
+                new Div(
+                        new Span("⭐"),
+                        count
+                );
+
+        badge.addClassName(
+                "famigo-task-stars"
+        );
+
+        badge.getElement().setAttribute(
+                "title",
+                stars + " Sterne"
+        );
 
         return badge;
     }
 
-    private Component createDueDateChip(LocalDate dueDate) {
-        Span chip = new Span();
-        chip.addClassName("famigo-task-chip");
+
+    private Component createDueDateChip(
+            LocalDate dueDate
+    ) {
+
+        Span chip =
+                new Span();
+
+        chip.addClassName(
+                "famigo-task-chip"
+        );
 
         if (dueDate == null) {
-            chip.setText("Ohne Frist");
-        } else {
-            chip.setText("Fällig bis " + dueDate.format(DATE_FORMAT));
 
-            if (!dueDate.isAfter(LocalDate.now())) {
-                chip.addClassName("famigo-task-chip-urgent");
+            chip.setText(
+                    "Ohne Frist"
+            );
+
+        } else {
+
+            chip.setText(
+                    "Fällig bis "
+                            + dueDate.format(DATE_FORMAT)
+            );
+
+            if (!dueDate.isAfter(
+                    LocalDate.now()
+            )) {
+
+                chip.addClassName(
+                        "famigo-task-chip-urgent"
+                );
             }
         }
 
         return chip;
     }
 
-    private Button createDetailsButton(String title, String description) {
-        Button detailsButton = new Button("Details");
-        detailsButton.addClassName("famigo-task-details-button");
+
+    private Button createDetailsButton(
+            String title,
+            String description
+    ) {
+
+        Button detailsButton =
+                new Button("Details");
+
+        detailsButton.addClassName(
+                "famigo-task-details-button"
+        );
+
         detailsButton.addThemeVariants(
                 ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_SMALL
         );
 
         detailsButton.addClickListener(e -> {
-            Dialog dialog = new Dialog();
-            dialog.setHeaderTitle(title);
 
-            dialog.add(new Paragraph(
-                    description == null || description.isBlank()
-                            ? "Zu dieser Aufgabe gibt es keine weitere Beschreibung."
-                            : description
-            ));
+            Dialog dialog =
+                    new Dialog();
 
-            Button closeButton = new Button(
-                    "Schließen",
-                    event -> dialog.close()
+            dialog.setHeaderTitle(
+                    title
             );
-            closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-            dialog.getFooter().add(closeButton);
+            dialog.add(
+                    new Paragraph(
+                            description == null
+                                    || description.isBlank()
+                                    ? "Zu dieser Aufgabe gibt es keine weitere Beschreibung."
+                                    : description
+                    )
+            );
 
-            dialog.setWidth("min(30rem, 90vw)");
+            Button closeButton =
+                    new Button(
+                            "Schließen",
+                            event -> dialog.close()
+                    );
+
+            closeButton.addThemeVariants(
+                    ButtonVariant.LUMO_TERTIARY
+            );
+
+            dialog.getFooter().add(
+                    closeButton
+            );
+
+            dialog.setWidth(
+                    "min(30rem, 90vw)"
+            );
+
             dialog.open();
         });
 
         return detailsButton;
     }
 }
+

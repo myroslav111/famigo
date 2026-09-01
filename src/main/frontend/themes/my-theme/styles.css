@@ -832,406 +832,215 @@
     }
 }
 
-
-/* =========================================================
-   FAMIGO FOOTER
-   ========================================================= */
-
 .famigo-footer {
-    position: relative;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
 
-    height: 78px;
-    min-height: 78px;
+    height: 75px !important;
+    min-height: 75px !important;
+    width: 100% !important;
 
-    background: white;
+    box-sizing: border-box !important;
 
-    border-radius: 24px 24px 0 0;
+    background-color: transparent !important;
 
-    box-shadow:
-            0 -4px 18px rgba(0, 0, 0, 0.10);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 80' preserveAspectRatio='none'%3E%3Cpath d='M0,20 Q0,0 20,0 L160,0 Q190,0 200,25 C215,86 285,86 300,25 Q310,0 340,0 L480,0 Q500,0 500,20 L500,80 L0,80 Z' fill='white'/%3E%3C/svg%3E") !important;
+
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+
+    filter: drop-shadow(0px -4px 10px rgba(0, 0, 0, 0.12)) !important;
 
     z-index: 20;
 
-    padding-left: 12px;
-    padding-right: 12px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+
+    padding: 0 10px !important;
+
+    border: none !important;
+    box-shadow: none !important;
 }
 
 
-/* =========================================================
-   NAV BUTTON
-   ========================================================= */
+/* =====================================================
+   Linke / rechte Gruppe
+   ===================================================== */
+
+.famigo-nav-group {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 1 !important;
+
+    height: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* =====================================================
+   Linker + rechter Navigationsbutton
+   ===================================================== */
 
 .famigo-nav-button {
-    position: relative;
+    background: transparent !important;
 
-    width: 33.333%;
-    height: 78px;
-
-    min-width: 0;
-
-    background: transparent;
-
-    border: none;
-    box-shadow: none;
-
-    padding: 5px 10px;
+    border: none !important;
+    box-shadow: none !important;
 
     cursor: pointer;
 
-    color: #777;
+    color: #777 !important;
 
-    transition:
-            color 0.2s ease,
-            transform 0.2s ease;
+    height: 100% !important;
+
+    width: 75px !important;
+    min-width: 75px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 2px !important;
+
+    font-size: 12px !important;
 }
 
 
-/* Hover */
-
-.famigo-nav-button:hover {
-    background: transparent;
-    color: #e30613;
-}
-
-
-/* Klick-Effekt */
-
-.famigo-nav-button:active {
-    transform: scale(0.94);
-}
-
-
-/* =========================================================
-   INHALT
-   ========================================================= */
-
-.famigo-nav-content {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    text-align: center;
-}
-
-
-/* =========================================================
-   ICON / EMOJI
-   ========================================================= */
+/* =====================================================
+   Emoji / Icon
+   ===================================================== */
 
 .famigo-nav-icon {
-    display: flex;
+    display: block !important;
 
-    justify-content: center;
-    align-items: center;
+    font-size: 25px !important;
+    line-height: 27px !important;
 
-    height: 30px;
+    height: 27px !important;
 
-    font-size: 23px;
-    line-height: 1;
-
-    margin-bottom: 2px;
+    transition:
+            transform 0.2s ease,
+            opacity 0.2s ease !important;
 }
 
 
-/* =========================================================
-   LABEL
-   ========================================================= */
+/* =====================================================
+   Beschriftung
+   ===================================================== */
 
 .famigo-nav-label {
-    font-size: 12px;
+    display: block !important;
 
-    line-height: 1.1;
+    font-size: 10px !important;
+    line-height: 12px !important;
 
-    white-space: nowrap;
+    font-weight: 500 !important;
 
-    color: inherit;
+    white-space: nowrap !important;
+
+    opacity: 0.8 !important;
+
+    transition:
+            opacity 0.2s ease,
+            transform 0.2s ease !important;
 }
 
 
-/* =========================================================
-   AKTIVER BUTTON
-   ========================================================= */
+/* =====================================================
+   Hover
+   ===================================================== */
 
-.famigo-nav-active {
+.famigo-nav-button:hover .famigo-nav-icon {
+    transform: scale(1.08);
+}
+
+.famigo-nav-button:hover .famigo-nav-label {
+    opacity: 1 !important;
+}
+
+
+/* =====================================================
+   AKTIVER BUTTON
+   ===================================================== */
+
+.famigo-nav-button.famigo-nav-active {
+    color: #e30613 !important;
+}
+
+
+.famigo-nav-button.famigo-nav-active .famigo-nav-icon {
+    transform: scale(1.12);
+
+    filter: drop-shadow(
+            0 2px 4px rgba(227, 6, 19, 0.25)
+    );
+}
+
+
+.famigo-nav-button.famigo-nav-active .famigo-nav-label {
+    opacity: 1 !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* =====================================================
+   Mittlerer Button
+   NICHT verändern
+   ===================================================== */
+
+.famigo-nav-button-accent {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: -8px !important;
+
+    transform: translateX(-50%) !important;
+
+    width: 66px !important;
+    height: 66px !important;
+
+    min-width: 66px !important;
+    max-width: 66px !important;
+
+    border-radius: 50% !important;
+
+    background: #ffffff !important;
+
+    border: none !important;
+
+    box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.18) !important;
+
+    z-index: 30;
+
     color: #e30613 !important;
 
-    font-weight: 600;
+    display: flex !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    padding: 0 !important;
+
+    font-size: 24px !important;
 }
 
-
-/* =========================================================
-   MITTLERER BUTTON
-   ========================================================= */
-
-.famigo-nav-button-accent {
-    position: relative;
-
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-
-    height: 70px;
-
-    margin-top: -30px;
-
-    padding: 0;
-
-    border-radius: 50%;
-
-    background: white;
-
-    border: 6px solid white;
-
-    box-shadow:
-            0 3px 12px rgba(0, 0, 0, 0.20);
-
-    z-index: 30;
-
-    color: #e30613;
-}
-
-
-/* Mittlerer Button Hover */
 
 .famigo-nav-button-accent:hover {
-    background: white;
-
-    color: #c9000b;
-
-    box-shadow:
-            0 5px 16px rgba(0, 0, 0, 0.25);
-}
-
-
-/* Icon des mittleren Buttons */
-
-.famigo-nav-button-accent .famigo-nav-icon {
-    font-size: 27px;
-}
-
-
-/* Label beim mittleren Button */
-
-.famigo-nav-button-accent .famigo-nav-label {
-    font-size: 10px;
-    font-weight: 600;
-}
-
-@media (max-width: 600px) {
-
-    .famigo-footer {
-        height: 72px;
-        min-height: 72px;
-
-        border-radius: 22px 22px 0 0;
-
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-
-
-    .famigo-nav-button {
-        height: 72px;
-
-        padding: 4px 5px;
-    }
-
-
-    .famigo-nav-icon {
-        font-size: 21px;
-    }
-
-
-    .famigo-nav-label {
-        font-size: 11px;
-    }
-
-
-    .famigo-nav-button-accent {
-        width: 64px;
-        min-width: 64px;
-        max-width: 64px;
-
-        height: 64px;
-
-        margin-top: -27px;
-
-        border-width: 5px;
-    }
-
-
-    .famigo-nav-button-accent .famigo-nav-icon {
-        font-size: 25px;
-    }
-}
-
-/* =========================================================
-   MITTLERER BUTTON
-   ========================================================= */
-
-.famigo-nav-button-accent {
-    position: absolute;
-
-    left: 50%;
-    top: 0;
-
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-
-    height: 70px;
-
-    transform: translate(-50%, -30%);
-
-    padding: 0;
-
-    border-radius: 50%;
-
-    background: white;
-
-    border: 6px solid white;
-
-    box-shadow:
-            0 3px 12px rgba(0, 0, 0, 0.20);
-
-    z-index: 30;
-
-    color: #e30613;
-
-    transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-}
-
-
-/* Hover */
-
-.famigo-nav-button-accent:hover {
-    background: white;
-
-    color: #c9000b;
-
-    transform: translate(-50%, -30%) scale(1.05);
-
-    box-shadow:
-            0 5px 16px rgba(0, 0, 0, 0.25);
-}
-
-
-/* Klick-Effekt */
-
-.famigo-nav-button-accent:active {
-    transform: translate(-50%, -30%) scale(0.94);
-}
-
-
-/* Icon des mittleren Buttons */
-
-.famigo-nav-button-accent .famigo-nav-icon {
-    font-size: 27px;
-}
-
-
-/* Label beim mittleren Button */
-
-.famigo-nav-button-accent .famigo-nav-label {
-    font-size: 10px;
-    font-weight: 600;
-}
-
-/* =========================================================
-   MITTLERER BUTTON
-   ========================================================= */
-
-.famigo-nav-button-accent {
-    position: absolute;
-
-    left: 50%;
-    top: 0;
-
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-
-    height: 70px;
-
-    transform: translate(-50%, -30%);
-
-    padding: 0;
-
-    border-radius: 50%;
-
-    background: white;
-
-    border: 6px solid white;
-
-    box-shadow:
-            0 3px 12px rgba(0, 0, 0, 0.20);
-
-    z-index: 30;
-
-    color: #e30613;
-
-    transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-}
-
-
-/* Hover */
-
-.famigo-nav-button-accent:hover {
-    background: white;
-
-    color: #c9000b;
-
-    transform: translate(-50%, -30%) scale(1.05);
-
-    box-shadow:
-            0 5px 16px rgba(0, 0, 0, 0.25);
-}
-
-
-/* Klick-Effekt */
-
-.famigo-nav-button-accent:active {
-    transform: translate(-50%, -30%) scale(0.94);
-}
-
-
-/* Icon des mittleren Buttons */
-
-.famigo-nav-button-accent .famigo-nav-icon {
-    font-size: 27px;
-}
-
-
-/* Label beim mittleren Button */
-
-.famigo-nav-button-accent .famigo-nav-label {
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.famigo-nav-button-accent {
-    position: absolute;
-
-    left: 50%;
-    top: 0;
-
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
-
-    height: 80px;
-
-    transform: translate(-50%, -30%);
-
-    border-width: 5px;
-
-    margin: 0;
+    transform: translateX(-50%) scale(1.04) !important;
 }

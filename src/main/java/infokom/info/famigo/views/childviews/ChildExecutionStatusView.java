@@ -38,7 +38,6 @@ public class ChildExecutionStatusView extends VerticalLayout {
 
         setSpacing(true);
         setPadding(true);
-        setSizeFull();
         setWidthFull();
 
         taskTabSheet = new TabSheet();

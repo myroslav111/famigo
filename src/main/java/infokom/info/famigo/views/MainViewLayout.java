@@ -111,19 +111,41 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         expand(contentArea); // wichtig, damit Footer unten bleibt
 
         // === Footer ===
-        HorizontalLayout footer = new HorizontalLayout();
+        // Verwende Div oder Element statt HorizontalLayout für den Haupt-Container
+        Div footer = new Div();
         footer.addClassName("famigo-footer");
-        footer.setWidthFull();
-        footer.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        footer.setAlignItems(Alignment.CENTER);
 
-        taskButton = new Button();
-        rewardButton = new Button();
+        taskButton = createNavButton("📋", "Aufgaben");
+        rewardButton = createNavButton("📊", "Belohnungen");
         addTaskButton = new Button();
 
-        taskButton.addClassName("famigo-nav-button");
-        rewardButton.addClassName("famigo-nav-button");
-        addTaskButton.addClassNames("famigo-nav-button", "famigo-nav-button-accent");
+
+        taskButton.addClassNames(
+                "famigo-nav-button",
+                "task-nav"
+        );
+
+        rewardButton.addClassNames(
+                "famigo-nav-button",
+                "reward-nav"
+        );
+
+        addTaskButton.addClassNames(
+                "famigo-nav-button",
+                "famigo-nav-button-accent"
+        );
+
+        taskButton.setText("Aufgaben");
+        rewardButton.setText("Belohnungen");
+
+// Die linken und rechten Buttons bleiben Flex-Container
+        HorizontalLayout leftGroup = new HorizontalLayout();
+        leftGroup.addClassName("famigo-nav-group");
+        leftGroup.add(taskButton);
+
+        HorizontalLayout rightGroup = new HorizontalLayout();
+        rightGroup.addClassName("famigo-nav-group");
+        rightGroup.add(rewardButton);
 
         taskButton.addClickListener(e -> {
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
@@ -182,41 +204,140 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
 
         });
 
-        footer.add(taskButton, addTaskButton, rewardButton);
+        footer.add(leftGroup, addTaskButton, rightGroup);
         add(footer);
     }
 
+    private Button createNavButton(String iconText, String labelText) {
 
-    private void updateButtonText(){
+        Button button = new Button();
+
+        button.getElement().setProperty(
+                "innerHTML",
+                "<span class=\"famigo-nav-icon\">"
+                        + iconText
+                        + "</span>"
+                        + "<span class=\"famigo-nav-label\">"
+                        + labelText
+                        + "</span>"
+        );
+
+        button.addClassName("famigo-nav-button");
+
+        return button;
+    }
+
+    private void updateButtonText() {
+
         String path = UI.getCurrent()
                 .getInternals()
                 .getActiveViewLocation()
                 .getPath();
 
-        if(path.equals("tasks") || path.equals("child/tasks")) {
-            taskButton.setText("\uD83C\uDFE0");
-            System.out.println(path);
-        }else {
-            taskButton.setText("\uD83D\uDCCB");
-            System.out.println(path);
-        }
 
-        if(path.equals("rewards") || path.equals("child/rewards")) {
-            rewardButton.setText("\uD83C\uDFE0");
-        }else {
-            rewardButton.setText("\uD83D\uDCCA");
-        }
+        // =====================================================
+        // AUFGABEN BUTTON
+        // =====================================================
 
-        if (userService.getCurrentUser().getRole().equals(UserRole.PARENT)) {
-            addTaskButton.setText("✏️");
+        boolean tasksActive =
+                path.equals("tasks") ||
+                        path.equals("child/tasks");
+
+        if (tasksActive) {
+
+            // Auf der Aufgaben-Seite -> Button führt nach Home
+            setNavButtonContent(
+                    taskButton,
+                    "🏠",
+                    "Home"
+            );
+
+            taskButton.addClassName("famigo-nav-active");
+
         } else {
+
+            // Auf Home / anderen Seiten -> Button führt zu Aufgaben
+            setNavButtonContent(
+                    taskButton,
+                    "📋",
+                    "Aufgaben"
+            );
+
+            taskButton.removeClassName("famigo-nav-active");
+        }
+
+
+        // =====================================================
+        // BELOHNUNGEN BUTTON
+        // =====================================================
+
+        boolean rewardsActive =
+                path.equals("rewards") ||
+                        path.equals("child/rewards") ||
+                        path.equals("child/stars-exchange");
+
+        if (rewardsActive) {
+
+            // Auf Belohnungsseite -> zurück zu Home
+            setNavButtonContent(
+                    rewardButton,
+                    "🏠",
+                    "Home"
+            );
+
+            rewardButton.addClassName("famigo-nav-active");
+
+        } else {
+
+            // Auf Home / anderen Seiten -> zu Belohnungen
+            setNavButtonContent(
+                    rewardButton,
+                    "📊",
+                    "Belohnungen"
+            );
+
+            rewardButton.removeClassName("famigo-nav-active");
+        }
+
+
+        // =====================================================
+        // MITTLERER BUTTON
+        // NICHT ÄNDERN
+        // =====================================================
+
+        if (userService.getCurrentUser()
+                .getRole()
+                .equals(UserRole.PARENT)) {
+
+            addTaskButton.setText("✏️");
+
+        } else {
+
             if (path.equals("child/stars-exchange")) {
-                addTaskButton.setText("\uD83C\uDFE0");
+                addTaskButton.setText("🏠");
             } else {
                 addTaskButton.setText("🎁");
             }
         }
     }
+
+    private void setNavButtonContent(
+            Button button,
+            String iconText,
+            String labelText
+    ) {
+
+        button.getElement().setProperty(
+                "innerHTML",
+                "<span class=\"famigo-nav-icon\">"
+                        + iconText
+                        + "</span>"
+                        + "<span class=\"famigo-nav-label\">"
+                        + labelText
+                        + "</span>"
+        );
+    }
+
 
     public NotificationPopup executeRequest(User user) {
 
