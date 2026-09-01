@@ -33,67 +33,208 @@ public class ManageRewards extends VerticalLayout {
     private Div rewardsLayout;
 
 
-    public ManageRewards(RewardOptionService rewardOptionService, ChildRewardTransactionService childRewardTransactionService, UserService userService) {
+    public ManageRewards(
+            RewardOptionService rewardOptionService,
+            ChildRewardTransactionService childRewardTransactionService,
+            UserService userService
+    ) {
+
         this.rewardOptionService = rewardOptionService;
         this.childRewardTransactionService = childRewardTransactionService;
         this.userService = userService;
 
+        // =========================================================
+        // Hauptlayout
+        // =========================================================
+
         addClassName("famigo-page");
+
         setSpacing(true);
         setPadding(true);
-        setSizeFull();
+
         setWidthFull();
+        setHeightFull();
 
-        H2 pageTitle = new H2("Belohnungen verwalten 🎁");
-        pageTitle.addClassName("famigo-page-title");
+        getStyle()
+                .set("box-sizing", "border-box")
+                .set("overflow", "hidden");
 
-        Paragraph pageSubtitle = new Paragraph("Lege je Kategorie fest, wogegen deine Kinder ihre Sterne eintauschen können.");
-        pageSubtitle.addClassName("famigo-page-subtitle");
+        // =========================================================
+        // Überschrift
+        // =========================================================
 
-        rewardsLayout = new Div();
-        rewardsLayout.addClassName("famigo-task-grid");
+        H2 pageTitle =
+                new H2(
+                        "Belohnungen verwalten 🎁"
+                );
 
-        add(pageTitle, pageSubtitle, rewardsLayout);
+        pageTitle.addClassName(
+                "famigo-page-title"
+        );
+
+        // =========================================================
+        // Untertitel
+        // =========================================================
+
+        Paragraph pageSubtitle =
+                new Paragraph(
+                        "Lege je Kategorie fest, wogegen "
+                                + "deine Kinder ihre Sterne eintauschen können."
+                );
+
+        pageSubtitle.addClassName(
+                "famigo-page-subtitle"
+        );
+
+        // =========================================================
+        // Scrollbarer Reward-Bereich
+        // =========================================================
+
+        rewardsLayout =
+                new Div();
+
+        rewardsLayout.addClassName(
+                "famigo-task-grid"
+        );
+
+        rewardsLayout.getStyle()
+                .set("overflow-y", "auto")
+                .set("overflow-x", "hidden")
+                .set("min-height", "0")
+                .set("box-sizing", "border-box")
+                .set("padding-bottom", "70px");
+
+        // =========================================================
+        // Layout aufbauen
+        // =========================================================
+
+        add(
+                pageTitle,
+                pageSubtitle,
+                rewardsLayout
+        );
+
+        // Reward-Bereich nimmt den restlichen Platz ein
+        expand(rewardsLayout);
+
+        // =========================================================
+        // Rewards laden
+        // =========================================================
 
         refreshRewards();
     }
 
+
+    // =============================================================
+    // Rewards aktualisieren
+    // =============================================================
+
     public void refreshRewards() {
+
         rewardsLayout.removeAll();
 
-        Arrays.stream(RewardCategory.values())
-                .forEach(rewardCategory -> rewardsLayout.add(createRewardsParentCard(rewardCategory)));
+        Arrays.stream(
+                        RewardCategory.values()
+                )
+                .forEach(
+                        rewardCategory ->
+                                rewardsLayout.add(
+                                        createRewardsParentCard(
+                                                rewardCategory
+                                        )
+                                )
+                );
     }
 
-    public Div createRewardsParentCard(RewardCategory rewardCategory) {
-        Button manageButton = new Button("Verwalten", new Icon(VaadinIcon.EDIT));
-        manageButton.addClassName("famigo-task-done-button");
-        manageButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
-        manageButton.addClickListener(event -> {
-            ManageRewardOptionDialog manageRewardOptionDialog = new ManageRewardOptionDialog(
-                    rewardOptionService,
-                    childRewardTransactionService,
-                    rewardCategory.toString(),
-                    userService,
-                    this::refreshRewards);
-            manageRewardOptionDialog.open();
-        });
 
-        return RewardCards.categoryCard(rewardCategory, describeCategory(rewardCategory), manageButton);
+    // =============================================================
+    // Reward Kategorie Card
+    // =============================================================
+
+    public Div createRewardsParentCard(
+            RewardCategory rewardCategory
+    ) {
+
+        Button manageButton =
+                new Button(
+                        "Verwalten",
+                        new Icon(
+                                VaadinIcon.EDIT
+                        )
+                );
+
+        manageButton.addClassName(
+                "famigo-task-done-button"
+        );
+
+        manageButton.addThemeVariants(
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_SMALL
+        );
+
+        manageButton.addClickListener(
+                event -> {
+
+                    ManageRewardOptionDialog
+                            manageRewardOptionDialog =
+                            new ManageRewardOptionDialog(
+                                    rewardOptionService,
+                                    childRewardTransactionService,
+                                    rewardCategory.toString(),
+                                    userService,
+                                    this::refreshRewards
+                            );
+
+                    manageRewardOptionDialog.open();
+                }
+        );
+
+        return RewardCards.categoryCard(
+                rewardCategory,
+                describeCategory(rewardCategory),
+                manageButton
+        );
     }
 
-    /** Chip-Text: wie viele Belohnungen in dieser Kategorie aktiv bzw. inaktiv sind. */
-    private String describeCategory(RewardCategory rewardCategory) {
-        List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(rewardCategory);
 
-        long active = rewardOptions.stream().filter(RewardOption::isActive).count();
-        long inactive = rewardOptions.size() - active;
+    // =============================================================
+    // Kategorie Beschreibung
+    // =============================================================
+
+    /**
+     * Zeigt an, wie viele Belohnungen in dieser Kategorie
+     * aktiv bzw. inaktiv sind.
+     */
+    private String describeCategory(
+            RewardCategory rewardCategory
+    ) {
+
+        List<RewardOption> rewardOptions =
+                rewardOptionService
+                        .getRewardOptionByCategory(
+                                rewardCategory
+                        );
+
+        long active =
+                rewardOptions.stream()
+                        .filter(
+                                RewardOption::isActive
+                        )
+                        .count();
+
+        long inactive =
+                rewardOptions.size()
+                        - active;
 
         if (rewardOptions.isEmpty()) {
+
             return "Noch keine Belohnung";
         }
 
-        return active + " aktiv · " + inactive + " inaktiv";
+        return active
+                + " aktiv · "
+                + inactive
+                + " inaktiv";
     }
-
 }
+

@@ -831,3 +831,216 @@
         transform: translateY(-10px);
     }
 }
+
+.famigo-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+
+    height: 75px !important;
+    min-height: 75px !important;
+    width: 100% !important;
+
+    box-sizing: border-box !important;
+
+    background-color: transparent !important;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 80' preserveAspectRatio='none'%3E%3Cpath d='M0,20 Q0,0 20,0 L160,0 Q190,0 200,25 C215,86 285,86 300,25 Q310,0 340,0 L480,0 Q500,0 500,20 L500,80 L0,80 Z' fill='white'/%3E%3C/svg%3E") !important;
+
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+
+    filter: drop-shadow(0px -4px 10px rgba(0, 0, 0, 0.12)) !important;
+
+    z-index: 20;
+
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+
+    padding: 0 10px !important;
+
+    border: none !important;
+    box-shadow: none !important;
+}
+
+
+/* =====================================================
+   Linke / rechte Gruppe
+   ===================================================== */
+
+.famigo-nav-group {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 1 !important;
+
+    height: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* =====================================================
+   Linker + rechter Navigationsbutton
+   ===================================================== */
+
+.famigo-nav-button {
+    background: transparent !important;
+
+    border: none !important;
+    box-shadow: none !important;
+
+    cursor: pointer;
+
+    color: #777 !important;
+
+    height: 100% !important;
+
+    width: 75px !important;
+    min-width: 75px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 2px !important;
+
+    font-size: 12px !important;
+}
+
+
+/* =====================================================
+   Emoji / Icon
+   ===================================================== */
+
+.famigo-nav-icon {
+    display: block !important;
+
+    font-size: 25px !important;
+    line-height: 27px !important;
+
+    height: 27px !important;
+
+    transition:
+            transform 0.2s ease,
+            opacity 0.2s ease !important;
+}
+
+
+/* =====================================================
+   Beschriftung
+   ===================================================== */
+
+.famigo-nav-label {
+    display: block !important;
+
+    font-size: 10px !important;
+    line-height: 12px !important;
+
+    font-weight: 500 !important;
+
+    white-space: nowrap !important;
+
+    opacity: 0.8 !important;
+
+    transition:
+            opacity 0.2s ease,
+            transform 0.2s ease !important;
+}
+
+
+/* =====================================================
+   Hover
+   ===================================================== */
+
+.famigo-nav-button:hover .famigo-nav-icon {
+    transform: scale(1.08);
+}
+
+.famigo-nav-button:hover .famigo-nav-label {
+    opacity: 1 !important;
+}
+
+
+/* =====================================================
+   AKTIVER BUTTON
+   ===================================================== */
+
+.famigo-nav-button.famigo-nav-active {
+    color: #e30613 !important;
+}
+
+
+.famigo-nav-button.famigo-nav-active .famigo-nav-icon {
+    transform: scale(1.12);
+
+    filter: drop-shadow(
+            0 2px 4px rgba(227, 6, 19, 0.25)
+    );
+}
+
+
+.famigo-nav-button.famigo-nav-active .famigo-nav-label {
+    opacity: 1 !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* =====================================================
+   Mittlerer Button
+   NICHT verändern
+   ===================================================== */
+
+.famigo-nav-button-accent {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: -8px !important;
+
+    transform: translateX(-50%) !important;
+
+    width: 66px !important;
+    height: 66px !important;
+
+    min-width: 66px !important;
+    max-width: 66px !important;
+
+    border-radius: 50% !important;
+
+    background: #ffffff !important;
+
+    border: none !important;
+
+    box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.18) !important;
+
+    z-index: 30;
+
+    color: #e30613 !important;
+
+    display: flex !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    padding: 0 !important;
+
+    font-size: 24px !important;
+}
+
+
+.famigo-nav-button-accent:hover {
+    transform: translateX(-50%) scale(1.04) !important;
+}

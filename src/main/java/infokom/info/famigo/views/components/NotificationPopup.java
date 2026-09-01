@@ -1,5 +1,6 @@
 package infokom.info.famigo.views.components;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Div;
@@ -11,6 +12,7 @@ import infokom.info.famigo.entity.ChildRewardTransaction;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.ChildRewardTransactionService;
+import infokom.info.famigo.service.NotificationService;
 import infokom.info.famigo.service.SessionService;
 
 
@@ -22,14 +24,16 @@ public class NotificationPopup extends Div {
     private final ChildRewardTransactionService childRewardTransactionService;
     private final User user;
     private final SessionService sessionService;
+    private final NotificationService notificationService;
 
     private final ContextMenu menu;
     private final MessagesButton bellBtn;
 
-    public NotificationPopup(User user, ChildRewardTransactionService childRewardTransactionService,  SessionService sessionService) {
+    public NotificationPopup(User user, ChildRewardTransactionService childRewardTransactionService,  SessionService sessionService, NotificationService notificationService) {
         this.user = user;
         this.childRewardTransactionService = childRewardTransactionService;
         this.sessionService = sessionService;
+        this.notificationService = notificationService;
 
         bellBtn = new MessagesButton();
 
