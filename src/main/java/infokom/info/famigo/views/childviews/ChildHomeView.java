@@ -529,7 +529,7 @@ public class ChildHomeView
         add(
                 welcome,
                 welcomeText,
-//                starsBox,
+                starsBox,
                 tasksTitle,
                 currentTaskLayout
         );

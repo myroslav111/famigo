@@ -13,8 +13,9 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 @PWA(
         name = "Famigo",
         shortName = "Famigo",
-        description = "Famigo - Aufgaben und Belohnungen für die Familie"
-//        manifestPath = "manifest.json"
+        description = "Famigo - Aufgaben und Belohnungen für die Familie",
+        backgroundColor = "#b094ff", // Deine lila Hintergrundfarbe
+        themeColor = "#b094ff"
 )
 @Viewport("width=device-width, initial-scale=1.0, viewport-fit=cover")
 @Push
