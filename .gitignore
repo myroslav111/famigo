@@ -32,3 +32,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets / lokale Artefakte ###
+.env
+*.p12
+*.crt
+.attach_pid*

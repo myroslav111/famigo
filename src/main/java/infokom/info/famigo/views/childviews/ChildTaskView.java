@@ -16,16 +16,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import infokom.info.famigo.entity.Reward;
 import infokom.info.famigo.entity.Task;
 import infokom.info.famigo.entity.TaskTemplate;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.TaskStatus;
-import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.TaskTemplateService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
+import infokom.info.famigo.views.components.UiActions;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,7 +40,6 @@ public class ChildTaskView extends VerticalLayout {
     private final TaskService taskService;
     private final UserService userService;
     private final TaskTemplateService taskTemplateService;
-    private final RewardService rewardService;
 
     private Div standardTasksLayout;
     private Div specialTasksLayout;
@@ -52,14 +50,12 @@ public class ChildTaskView extends VerticalLayout {
     public ChildTaskView(
             TaskService taskService,
             UserService userService,
-            TaskTemplateService taskTemplateService,
-            RewardService rewardService
+            TaskTemplateService taskTemplateService
     ) {
 
         this.taskService = taskService;
         this.userService = userService;
         this.taskTemplateService = taskTemplateService;
-        this.rewardService = rewardService;
 
         // =========================================================
         // Hauptlayout
@@ -269,15 +265,7 @@ public class ChildTaskView extends VerticalLayout {
                 createDoneButton();
 
         markAsDoneButton.addClickListener(e -> {
-
-            task.setStatus(
-                    TaskStatus.DONE
-            );
-
-            taskService.updateTask(
-                    task
-            );
-
+            UiActions.run(() -> taskService.submit(task.getId()));
             refreshTasks();
         });
 
@@ -383,74 +371,9 @@ public class ChildTaskView extends VerticalLayout {
 
         markAsDoneButton.addClickListener(e -> {
 
-            User currentUser =
-                    userService.getCurrentUser();
-
-            Task doneTask =
-                    new Task();
-
-            doneTask.setTitle(
-                    task.getTitle()
-            );
-
-            doneTask.setStarsReward(
-                    task.getStarsReward()
-            );
-
-            doneTask.setDescription(
-                    task.getDescription()
-            );
-
-            doneTask.setDueDate(
-                    LocalDate.now()
-            );
-
-            doneTask.setStatus(
-                    TaskStatus.DONE
-            );
-
-            doneTask.setAssignedTo(
-                    currentUser
-            );
-
-            doneTask.setTemplate(
-                    task
-            );
-
-            taskService.save(
-                    doneTask
-            );
-
-            // -----------------------------------------------------
-            // Reward erstellen
-            // -----------------------------------------------------
-
-            Reward reward =
-                    new Reward();
-
-            reward.setTitle(
-                    task.getTitle()
-            );
-
-            reward.setDescription(
-                    task.getDescription()
-            );
-
-            reward.setStarCost(
-                    task.getStarsReward()
-            );
-
-            reward.setChild(
-                    currentUser
-            );
-
-            reward.setTask(
-                    doneTask
-            );
-
-            rewardService.save(
-                    reward
-            );
+            if (!UiActions.run(() -> taskService.submitFromTemplate(task.getId()))) {
+                return;
+            }
 
             Notification.show(
                     "Erledigte Aufgabe wurde zum Elternteil geschickt."

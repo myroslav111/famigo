@@ -34,11 +34,14 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "created_by_id")
-    User createdBy;
+    private User createdBy;
 
     @ManyToOne
     @JoinColumn(name = "template_id")
     private TaskTemplate template;
+
+    @Version
+    private long version;
 
 
 }

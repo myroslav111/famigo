@@ -9,29 +9,21 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import infokom.info.famigo.entity.Reward;
-import infokom.info.famigo.entity.Task;
 import infokom.info.famigo.entity.User;
-import infokom.info.famigo.entity.enums.TaskStatus;
-import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-@Component
 public class TaskDialog extends Dialog {
     private final UserService userService;
     private final TaskService taskService;
-    private final RewardService rewardService;
 
     private ComboBox<User> childSelect;
 
-    public TaskDialog(UserService userService, TaskService taskService,  RewardService rewardService) {
+    public TaskDialog(UserService userService, TaskService taskService) {
         this.userService = userService;
         this.taskService = taskService;
-        this.rewardService = rewardService;
 
         setCloseOnOutsideClick(true);
         setWidth("90%");
@@ -59,29 +51,16 @@ public class TaskDialog extends Dialog {
                 Notification.show("Bitte alle pflichtfelder ausfüllen");
                 return;
             }
-            Task task = new Task();
-            task.setTitle(titleField.getValue());
-            task.setDescription(descriptionField.getValue());
-            task.setStarsReward(starsField.getValue().intValue());
-            task.setDueDate(dueDatePicker.getValue());
-            task.setStatus(TaskStatus.PENDING);
-            task.setAssignedTo(childSelect.getValue());
-
-            User currentParent = userService.getCurrentUser();
-            task.setCreatedBy(currentParent);
-
-            taskService.save(task);
-
-            Reward reward = new Reward();
-            reward.setTitle(titleField.getValue());
-            reward.setDescription(descriptionField.getValue());
-            reward.setStarCost(starsField.getValue().intValue());
-            reward.setChild(childSelect.getValue());
-            reward.setCreatedBy(currentParent);
-
-            reward.setTask(task);
-
-            rewardService.save(reward);
+            boolean saved = UiActions.run(() -> taskService.assign(
+                    childSelect.getValue().getId(),
+                    titleField.getValue(),
+                    descriptionField.getValue(),
+                    starsField.getValue().intValue(),
+                    dueDatePicker.getValue(),
+                    null));
+            if (!saved) {
+                return;
+            }
 
             Notification.show("Task gespeichert");
             close();

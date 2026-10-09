@@ -12,8 +12,8 @@ services:
     environment:
       # Container-zu-Container: interner Port 5432 (NICHT der Host-Port 5433!)
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/famigo
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
 
       VAADIN_PRODUCTIONMODE: "true"
       # Im Container gibt es kein Docker-in-Docker -> Compose-Automatik abschalten.
@@ -34,8 +34,9 @@ services:
 
     environment:
       POSTGRES_DB: famigo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      # Zugangsdaten aus .env (Vorlage: .env.example)
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -45,7 +46,7 @@ services:
       - "5433:5432"
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d famigo"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d famigo"]
       interval: 5s
       timeout: 5s
       retries: 10
