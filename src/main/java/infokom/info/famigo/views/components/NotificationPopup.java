@@ -13,7 +13,8 @@ import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
 import infokom.info.famigo.service.ChildRewardTransactionService;
 import infokom.info.famigo.service.NotificationService;
-import infokom.info.famigo.service.SessionService;
+import infokom.info.famigo.service.RewardService;
+import infokom.info.famigo.service.UserService;
 
 
 import java.util.Arrays;
@@ -23,16 +24,18 @@ import java.util.List;
 public class NotificationPopup extends Div {
     private final ChildRewardTransactionService childRewardTransactionService;
     private final User user;
-    private final SessionService sessionService;
+    private final RewardService rewardService;
+    private final UserService userService;
     private final NotificationService notificationService;
 
     private final ContextMenu menu;
     private final MessagesButton bellBtn;
 
-    public NotificationPopup(User user, ChildRewardTransactionService childRewardTransactionService,  SessionService sessionService, NotificationService notificationService) {
+    public NotificationPopup(User user, ChildRewardTransactionService childRewardTransactionService, RewardService rewardService, UserService userService, NotificationService notificationService) {
         this.user = user;
         this.childRewardTransactionService = childRewardTransactionService;
-        this.sessionService = sessionService;
+        this.rewardService = rewardService;
+        this.userService = userService;
         this.notificationService = notificationService;
 
         bellBtn = new MessagesButton();
@@ -46,19 +49,19 @@ public class NotificationPopup extends Div {
         refresh();
     }
 
-    public void updateStatusExecuteReward(Long childRewardTransactionId) {
-        childRewardTransactionService.updateStatusImplemented(true, childRewardTransactionId);
+    public boolean updateStatusExecuteReward(Long childRewardTransactionId) {
+        return UiActions.run(() -> rewardService.fulfill(childRewardTransactionId));
     }
 
-    public void updateStatusViewedByChild(Long childRewardTransactionId) {
-        childRewardTransactionService.updateStatusViewedByChild(true, childRewardTransactionId);
+    public boolean updateStatusViewedByChild(Long childRewardTransactionId) {
+        return UiActions.run(() -> rewardService.acknowledge(childRewardTransactionId));
     }
 
     public void refresh() {
         menu.removeAll();
         if (user.getRole() == UserRole.PARENT) {
             List<ChildRewardTransaction> childRewardTransactions = childRewardTransactionService
-                    .getImplementedRewards(user.getChildren());
+                    .getImplementedRewards(userService.getCurrentUser().getChildren());
 
             bellBtn.setUnreadMessages(childRewardTransactions.size());
 
@@ -67,15 +70,14 @@ public class NotificationPopup extends Div {
                                 + "categ: " + childRewardTransaction.getReward().getCategory()
                                 + " desc: " + childRewardTransaction.getReward().getDescription(),
                         event -> {
-                            updateStatusExecuteReward(childRewardTransaction.getId());
-                            Notification.show(childRewardTransaction.getChild().getName() + " ist akzeptiert");
+                            if (updateStatusExecuteReward(childRewardTransaction.getId()))
+                                Notification.show(childRewardTransaction.getChild().getName() + " ist akzeptiert");
                             refresh();
                         } );
             });
         }else {
-            User currentUser = sessionService.getCurrentUser();
             List<ChildRewardTransaction> childRewardTransactions = childRewardTransactionService
-                    .getImplementedRewardsAccepted(currentUser.getId());
+                    .getImplementedRewardsAccepted(user.getId());
 
 
 
@@ -83,8 +85,8 @@ public class NotificationPopup extends Div {
             childRewardTransactions.forEach(childRewardTransaction -> {
                 menu.addItem("dein Wunsch nach " + childRewardTransaction.getReward().getDescription() + " wird erfühlen",
                         event -> {
-                            updateStatusViewedByChild(childRewardTransaction.getId());
-                            Notification.show(" ist geschaut und entfernt");
+                            if (updateStatusViewedByChild(childRewardTransaction.getId()))
+                                Notification.show(" ist geschaut und entfernt");
                             refresh();
                         });
             });

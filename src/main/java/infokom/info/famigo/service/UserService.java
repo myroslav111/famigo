@@ -2,9 +2,9 @@ package infokom.info.famigo.service;
 
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.UserRole;
+import infokom.info.famigo.exception.DomainException;
+import infokom.info.famigo.exception.NotFoundException;
 import infokom.info.famigo.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,15 +15,13 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService) {
+    public UserService(UserRepository userRepository, SessionService sessionService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
     }
-    
+
     public List<User> findAllChildren() {
         return userRepository.findByRole(UserRole.CHILD);
     }
@@ -32,45 +30,56 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    /** Lädt den angemeldeten Benutzer frisch aus der DB (aktueller Sternestand, aktuelle Kinder). */
     public User getCurrentUser() {
-        User currentUser = sessionService.getCurrentUser();
-        if(currentUser == null) {
-            throw new UsernameNotFoundException("Kein Benutzer in der Session gefunden");
+        Long id = sessionService.getCurrentUserId();
+        if (id == null) {
+            throw new DomainException("Kein Benutzer angemeldet.");
         }
-        return currentUser;
+        return getById(id);
     }
 
-    public void updateUser(User user) {
-        userRepository.save(user);
-    }
-
-    public void updateUserStar(int countOfStars){
-        User user = getCurrentUser();
-        user.setStars(countOfStars);
-
-        userRepository.save(user);
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Benutzer nicht gefunden."));
     }
 
     public List<User> findChildrenOfParent(User parent) {
-        Optional<User> managedParent = Optional.ofNullable(userRepository.findUserById(parent.getId())
-                .orElseThrow(() -> new RuntimeException("Eltern nicht gefunden")));
-
-        return new ArrayList<>(managedParent.get().getChildren());
+        return new ArrayList<>(getById(parent.getId()).getChildren());
     }
 
     public List<User> findChildrenOfCurrentParent() {
-        User currentParent = sessionService.getCurrentUser();
+        return new ArrayList<>(getCurrentUser().getChildren());
+    }
 
-        return new ArrayList<>(currentParent.getChildren());
+    /** Liefert den aktuellen Benutzer, wenn er Elternteil ist und {@code childId} zu seinen Kindern gehört. */
+    public User requireParentOf(Long childId) {
+        User parent = getCurrentUser();
+        boolean isOwnChild = parent.getRole() == UserRole.PARENT
+                && parent.getChildren().stream().anyMatch(c -> c.getId().equals(childId));
+        if (!isOwnChild) {
+            throw new DomainException("Keine Berechtigung für dieses Kind.");
+        }
+        return parent;
+    }
+
+    /** Liefert den aktuellen Benutzer, wenn er ein Kind ist. */
+    public User requireChild() {
+        User child = getCurrentUser();
+        if (child.getRole() != UserRole.CHILD) {
+            throw new DomainException("Diese Aktion ist nur für Kinder möglich.");
+        }
+        return child;
     }
 
     @Transactional
     public void addParentToChildren(User child, Long parentId) {
-        Optional<User> parent = Optional.ofNullable(userRepository.findUserById(parentId).orElseThrow(() -> new RuntimeException("Eltern nicht gefunden")));
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new NotFoundException("Elternteil nicht gefunden."));
 
-        child.getParents().add(parent.get());
-        parent.get().getChildren().add(child);
+        child.getParents().add(parent);
+        parent.getChildren().add(child);
 
-        userRepository.save(parent.get());
+        userRepository.save(parent);
     }
 }

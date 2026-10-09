@@ -20,9 +20,9 @@ import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
+import infokom.info.famigo.views.components.UiActions;
 
 import java.util.List;
-import java.util.Optional;
 
 @Route(value = "rewards", layout = MainViewLayout.class)
 @PageTitle("Reward")
@@ -262,38 +262,9 @@ public class ParentExecutionStatusView extends VerticalLayout {
             );
 
             markRedeemed.addClickListener(e -> {
-
-                Optional<Task> task =
-                        taskService.findById(
-                                reward.getTask().getId()
-                        );
-
-                if (task.isEmpty()) {
-                    Notification.show(
-                            "Aufgabe wurde nicht gefunden."
-                    );
-                    return;
+                if (UiActions.run(() -> taskService.approve(reward.getId()))) {
+                    Notification.show("Belohnung als eingelöst markiert");
                 }
-
-                task.get().setStatus(TaskStatus.APPROVED);
-                taskService.updateTask(task.get());
-
-                reward.setRedeemed(true);
-                rewardService.save(reward);
-
-                Notification.show(
-                        "Belohnung als eingelöst markiert"
-                );
-
-                User currentChild = reward.getChild();
-
-                currentChild.setStars(
-                        currentChild.getStars()
-                                + reward.getStarCost()
-                );
-
-                userService.updateUser(currentChild);
-
                 refreshRewards();
             });
 
@@ -312,34 +283,7 @@ public class ParentExecutionStatusView extends VerticalLayout {
             );
 
             markAsUndone.addClickListener(e -> {
-
-                if (reward.getTask().getTemplate() != null) {
-
-                    rewardService.delete(reward.getId());
-
-                    taskService.deleteById(
-                            reward.getTask().getId()
-                    );
-
-                    refreshRewards();
-
-                    return;
-                }
-
-                reward.setRedeemed(false);
-
-                Optional<Task> task =
-                        taskService.findById(
-                                reward.getTask().getId()
-                        );
-
-                if (task.isPresent()) {
-
-                    task.get().setStatus(TaskStatus.PENDING);
-
-                    taskService.updateTask(task.get());
-                }
-
+                UiActions.run(() -> taskService.reject(reward.getId()));
                 refreshRewards();
             });
 

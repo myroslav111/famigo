@@ -3,11 +3,13 @@ package infokom.info.famigo.service;
 import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.enums.RewardCategory;
 import infokom.info.famigo.repository.RewardOptionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class RewardOptionService {
     private final RewardOptionRepository rewardOptionRepository;
@@ -37,7 +39,7 @@ public class RewardOptionService {
     }
 
     public List<RewardOption> getRewardOptionByCategory(String category) {
-        System.out.println("RewardOptionService -> getRewardOptionByCategory" + category);
+        log.debug("getRewardOptionByCategory {}", category);
 
         return getRewardOptionByCategory(
                 RewardCategory.valueOf(category)

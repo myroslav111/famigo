@@ -9,38 +9,34 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import infokom.info.famigo.entity.ChildRewardTransaction;
 import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.User;
 import infokom.info.famigo.entity.enums.RewardCategory;
-import infokom.info.famigo.service.ChildRewardTransactionService;
+import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.RewardOptionService;
 import infokom.info.famigo.service.UserService;
 
-import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class StarExchangeDialog extends Dialog {
     private final RewardOptionService rewardOptionService;
-    private final ChildRewardTransactionService childRewardTransactionService;
+    private final RewardService rewardService;
     private final String category;
     private final UserService userService;
 
-    int countOfStars;
-
     public StarExchangeDialog(RewardOptionService rewardOptionService,
-                              ChildRewardTransactionService childRewardTransactionService,
+                              RewardService rewardService,
                               String category,
                               UserService userService) {
         this.rewardOptionService = rewardOptionService;
-        this.childRewardTransactionService = childRewardTransactionService;
+        this.rewardService = rewardService;
         this.category = category;
         this.userService = userService;
 
@@ -48,11 +44,8 @@ public class StarExchangeDialog extends Dialog {
         starExchangeLayout.setSizeFull();
 
         User child = userService.getCurrentUser();
-        countOfStars = child.getStars();
 
-
-
-        H1 starBalance = new H1("Dein Sternzustand ist: " + countOfStars);
+        H1 starBalance = new H1("Dein Sternzustand ist: " + child.getStars());
         starBalance.addClassName("famigo-page-title");
 
         add(starBalance, radioButtonSet(child));
@@ -62,9 +55,6 @@ public class StarExchangeDialog extends Dialog {
         Div div = new Div();
         div.setSizeFull();
         div.setWidthFull();
-
-        System.out.println(category.getClass().getName());
-        System.out.println(RewardCategory.SELBSTWUNSCH.getClass().getName());
 
         if (category.equals(RewardCategory.SELBSTWUNSCH.toString())) {
             div.add(desireChildForm(child));
@@ -76,23 +66,29 @@ public class StarExchangeDialog extends Dialog {
             radioButtonGroup.setWidthFull();
             radioButtonGroup.setLabel("Art von den Belohnungen");
 
-            List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(category);
+            List<RewardOption> rewardOptions = rewardOptionService.getRewardOptionByCategory(category).stream()
+                    .filter(RewardOption::isActive)
+                    .toList();
+            if (rewardOptions.isEmpty()) {
+                div.add(new Paragraph("In dieser Kategorie gibt es gerade keine Belohnungen."));
+                return div;
+            }
             radioButtonGroup.setItems(rewardOptions);
-            radioButtonGroup.setValue(rewardOptions.get(0));
-            radioButtonGroup.setRenderer(new ComponentRenderer<>(rewardOption -> {
-                if (!rewardOption.isActive()) {
-                    radioButtonGroup.getElement().setEnabled(false);
-                }
-                return RewardCards.rewardOptionCard(rewardOption);
-            }));
+            radioButtonGroup.setValue(rewardOptions.getFirst());
+            radioButtonGroup.setRenderer(new ComponentRenderer<>(RewardCards::rewardOptionCard));
 
             Button exchangeButton = new Button("Umtauschen", createIcon(VaadinIcon.STAR));
             exchangeButton.addClassName("famigo-task-done-button");
             exchangeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             exchangeButton.addClickListener(event -> {
-                executeExchangeStars(radioButtonGroup.getValue(), child);
-                close();
-                Notification.show("Du hast " + radioButtonGroup.getValue().getCost() + " ⭐ ausgegeben!");
+                RewardOption selected = radioButtonGroup.getValue();
+                if (selected == null) {
+                    return;
+                }
+                if (UiActions.run(() -> rewardService.redeem(selected.getId()))) {
+                    close();
+                    Notification.show("Du hast " + selected.getCost() + " ⭐ ausgegeben!");
+                }
             });
 
             div.add(new VerticalLayout(radioButtonGroup, exchangeButton));
@@ -129,7 +125,7 @@ public class StarExchangeDialog extends Dialog {
         costField.setRequiredIndicatorVisible(true);
         costField.setMin(1);
         costField.setMax(100);
-        costField.setValue(0);
+        costField.setValue(1);
         costField.setStepButtonsVisible(true);
 
         costField.setI18n(new IntegerField.IntegerFieldI18n()
@@ -143,8 +139,13 @@ public class StarExchangeDialog extends Dialog {
         sent.addClassName("famigo-task-done-button");
         sent.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         sent.addClickListener(event -> {
+            Integer cost = costField.getValue();
+            if (cost == null || cost < 1 || cost > 100 || textAreaDesire.isEmpty()) {
+                UiActions.showError("Bitte einen Wunsch und einen Wert zwischen 1 und 100 eingeben.");
+                return;
+            }
             RewardOption newOption = new RewardOption();
-            newOption.setCost(costField.getValue());
+            newOption.setCost(cost);
             newOption.setDescription(textAreaDesire.getValue());
             newOption.setTitle("Eigene Wunsch");
             newOption.setCategory(RewardCategory.SELBSTWUNSCH);
@@ -161,23 +162,6 @@ public class StarExchangeDialog extends Dialog {
         desireContentFormLayout.add(textAreaDesire, costField, sent);
 
         return desireContentFormLayout;
-    }
-
-    public void executeExchangeStars(RewardOption rewardOption, User child){
-        if (child.getStars() < rewardOption.getCost()) {
-            Notification.show("Dir fählt noch " + (rewardOption.getCost() - child.getStars()) + " ⭐ !");
-            return;
-        }
-        countOfStars = child.getStars() - rewardOption.getCost();
-        userService.updateUserStar(countOfStars);
-
-        ChildRewardTransaction  childRewardTransaction = new ChildRewardTransaction();
-        childRewardTransaction.setRedeemedAt(LocalDateTime.now());
-        childRewardTransaction.setStarsSpent(rewardOption.getCost());
-        childRewardTransaction.setChild(child);
-        childRewardTransaction.setReward(rewardOption);
-
-        childRewardTransactionService.save(childRewardTransaction);
     }
 
 }

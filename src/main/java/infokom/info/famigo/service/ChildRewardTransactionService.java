@@ -6,9 +6,9 @@ import infokom.info.famigo.repository.ChildRewardTransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
+/** Lesezugriffe auf eingelöste Belohnungen. Schreibende Use-Cases liegen im {@link RewardService}. */
 @Service
 public class ChildRewardTransactionService {
     private final ChildRewardTransactionRepository childRewardTransactionRepository;
@@ -17,33 +17,16 @@ public class ChildRewardTransactionService {
         this.childRewardTransactionRepository = childRewardTransactionRepository;
     }
 
-    public void save(ChildRewardTransaction childRewardTransaction) {
-        childRewardTransactionRepository.save(childRewardTransaction);
-    }
-
     public List<ChildRewardTransaction> getImplementedRewards(Set<User> children) {
        return childRewardTransactionRepository.findByImplementedFalseAndChildIn(children);
     }
 
     public List<ChildRewardTransaction> getImplementedRewardsAccepted(Long userId) {
-        return childRewardTransactionRepository.findByImplementedTrueAndViewedByChildFalseAndChild_Id(userId).get();
+        return childRewardTransactionRepository.findByImplementedTrueAndViewedByChildFalseAndChild_Id(userId);
     }
 
     /** Wie oft wurde diese Belohnung bereits eingetauscht? Verhindert das Loeschen benutzter Belohnungen. */
     public long countByRewardOption(Long rewardOptionId) {
         return childRewardTransactionRepository.countByReward_Id(rewardOptionId);
-    }
-
-    public void updateStatusImplemented(boolean statusExecuteReward, Long childRewardTransactionId) {
-        Optional<ChildRewardTransaction> childRewardTransaction = childRewardTransactionRepository.findById(childRewardTransactionId);
-
-        childRewardTransaction.get().setImplemented(statusExecuteReward);
-        childRewardTransactionRepository.save(childRewardTransaction.get());
-    }
-
-    public void updateStatusViewedByChild(boolean statusViewedByChild, Long childRewardTransactionId) {
-        Optional<ChildRewardTransaction> childRewardTransaction = childRewardTransactionRepository.findById(childRewardTransactionId);
-        childRewardTransaction.get().setViewedByChild(statusViewedByChild);
-        childRewardTransactionRepository.save(childRewardTransaction.get());
     }
 }

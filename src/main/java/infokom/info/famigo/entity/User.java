@@ -31,6 +31,9 @@ public class User {
 
     private int stars = 0;
 
+    @Version
+    private long version;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "parent_child",

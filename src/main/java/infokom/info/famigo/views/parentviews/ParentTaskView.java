@@ -21,6 +21,7 @@ import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.TaskTemplateService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
+import infokom.info.famigo.views.components.UiActions;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -433,37 +434,16 @@ public class ParentTaskView extends VerticalLayout {
                 return;
             }
 
-            Task task = new Task();
-
-            task.setTitle(
-                    template.getTitle()
-            );
-
-            task.setStarsReward(
-                    template.getStarsReward()
-            );
-
-            task.setDescription(
-                    template.getDescription()
-            );
-
-            task.setStatus(
-                    TaskStatus.PENDING
-            );
-
-            task.setAssignedTo(
-                    selectedChild
-            );
-
-            task.setCreatedBy(
-                    userService.getCurrentUser()
-            );
-
-            task.setTemplate(
-                    template
-            );
-
-            taskService.save(task);
+            boolean assigned = UiActions.run(() -> taskService.assign(
+                    selectedChild.getId(),
+                    template.getTitle(),
+                    template.getDescription(),
+                    template.getStarsReward(),
+                    LocalDate.now(),
+                    template.getId()));
+            if (!assigned) {
+                return;
+            }
 
             Notification.show(
                     "Aufgabe wurde zugewiesen."

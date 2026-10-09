@@ -18,7 +18,6 @@ public class RewardDataInitializer {
             if (rewardOptionRepository.count() == 0) {
                 rewardOptionRepository.saveAll(List.of(
                         //  Materielle Belohnungen
-                        new RewardOption(),
                         new RewardOption("Sticker-Set", "Ein kleines Stickerheft oder Sammelkarten.", 5, RewardCategory.MATERIELL),
                         new RewardOption("Nascherei", "Ein Eis oder eine Schokolade.", 3, RewardCategory.MATERIELL),
                         new RewardOption("Kleines Buch", "Ein Comic oder Rätselheft.", 10, RewardCategory.MATERIELL),

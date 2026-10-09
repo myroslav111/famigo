@@ -191,7 +191,7 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
             String path = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
 
             if(currentUser.getRole().equals(UserRole.PARENT)){
-                TaskDialog taskDialog = new TaskDialog(userService, taskService, rewardService);
+                TaskDialog taskDialog = new TaskDialog(userService, taskService);
                 taskDialog.open();
             }else{
                 if(path.equals("child/stars-exchange")) {
@@ -344,7 +344,8 @@ public class MainViewLayout extends VerticalLayout implements RouterLayout, Afte
         notificationPopup = new NotificationPopup(
                 user,
                 childRewardTransactionService,
-                sessionService,
+                rewardService,
+                userService,
                 notificationService
         );
 

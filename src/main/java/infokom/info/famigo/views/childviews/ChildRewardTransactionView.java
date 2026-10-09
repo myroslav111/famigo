@@ -12,7 +12,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.RewardOption;
 import infokom.info.famigo.entity.enums.RewardCategory;
-import infokom.info.famigo.service.ChildRewardTransactionService;
+import infokom.info.famigo.service.RewardService;
 import infokom.info.famigo.service.RewardOptionService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
@@ -27,7 +27,7 @@ import java.util.List;
 public class ChildRewardTransactionView extends VerticalLayout {
 
     private final RewardOptionService rewardOptionService;
-    private final ChildRewardTransactionService childRewardTransactionService;
+    private final RewardService rewardService;
     private final UserService userService;
 
     private Div rewardsLayout;
@@ -35,12 +35,12 @@ public class ChildRewardTransactionView extends VerticalLayout {
 
     private ChildRewardTransactionView(
             RewardOptionService rewardOptionService,
-            ChildRewardTransactionService childRewardTransactionService,
+            RewardService rewardService,
             UserService userService
     ) {
 
         this.rewardOptionService = rewardOptionService;
-        this.childRewardTransactionService = childRewardTransactionService;
+        this.rewardService = rewardService;
         this.userService = userService;
 
         // =========================================================
@@ -176,7 +176,7 @@ public class ChildRewardTransactionView extends VerticalLayout {
                     StarExchangeDialog starExchangeDialog =
                             new StarExchangeDialog(
                                     rewardOptionService,
-                                    childRewardTransactionService,
+                                    rewardService,
                                     rewardCategory.toString(),
                                     userService
                             );

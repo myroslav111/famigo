@@ -12,8 +12,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import infokom.info.famigo.entity.User;
@@ -21,13 +19,12 @@ import infokom.info.famigo.service.SessionService;
 import infokom.info.famigo.service.TaskService;
 import infokom.info.famigo.service.UserService;
 import infokom.info.famigo.views.MainViewLayout;
-import infokom.info.famigo.views.securityviews.LoginView;
 
 import java.util.List;
 
 @Route(value = "parent", layout = MainViewLayout.class)
 @PageTitle("Elternbereich")
-public class ParentHomeView extends VerticalLayout implements BeforeEnterObserver {
+public class ParentHomeView extends VerticalLayout {
     private final SessionService sessionService;
     private final TaskService taskService;
     private final UserService userService;
@@ -143,10 +140,4 @@ public class ParentHomeView extends VerticalLayout implements BeforeEnterObserve
         return name.substring(0, 1).toUpperCase();
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent e){
-        if(!sessionService.isLoggedIn()){
-            e.forwardTo(LoginView.class);
-        }
-    }
 }
